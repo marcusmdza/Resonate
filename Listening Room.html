@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resonate — Listening Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0a0a0d; --bg-elevated:#111115;
+    --surface:rgba(24,24,28,0.55); --surface-strong:rgba(28,28,34,0.78); --surface-raised:rgba(34,34,40,0.85);
+    --text:#f4f4f6; --text-muted:#a1a1aa; --text-dim:#6b6b75;
+    --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.14); --border-accent:rgba(29,185,84,0.40);
+    --accent:#1DB954; --accent-hover:#1ED760; --accent-soft:rgba(29,185,84,0.15); --accent-glow:rgba(29,185,84,0.35);
+    --signal-warm:#ff6b9d; --signal-cool:#8b5cf6;
+    --font-display:"Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif; --font-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    --shadow-card:0 4px 16px rgba(0,0,0,0.30); --shadow-raised:0 12px 48px rgba(0,0,0,0.50);
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;} html{color-scheme:dark;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:var(--font-body); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; min-height:100vh; overflow-x:hidden;
+  }
+  body::before{content:"";position:fixed;inset:0;
+    background:
+      radial-gradient(at 15% 0%, rgba(29,185,84,0.12) 0%, transparent 55%),
+      radial-gradient(at 85% 20%, rgba(138,43,226,0.10) 0%, transparent 50%),
+      radial-gradient(at 50% 90%, rgba(29,185,84,0.08) 0%, transparent 60%);
+    pointer-events:none; z-index:0;}
+  body::after{content:"";position:fixed;inset:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.035 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity:.5; mix-blend-mode:overlay; pointer-events:none; z-index:1;}
+  main,header{position:relative;z-index:2;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:500; letter-spacing:-0.02em; margin:0; text-wrap:balance;}
+  p{margin:0; text-wrap:pretty;}
+  .mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums;}
+
+  /* Top bar */
+  .top {
+    position:sticky; top:24px; z-index:50;
+    display:flex; justify-content:center; padding:0 32px; margin-top:24px;
+  }
+  .top-inner {
+    display:flex; align-items:center; gap:16px; padding:10px 10px 10px 18px;
+    background:var(--surface-strong);
+    -webkit-backdrop-filter:blur(32px) saturate(180%); backdrop-filter:blur(32px) saturate(180%);
+    border:1px solid var(--border); border-radius:999px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:var(--text); text-decoration:none; white-space:nowrap;}
+  .brand .dot{width:7px; height:7px; border-radius:999px; background:var(--accent); box-shadow:0 0 10px var(--accent-glow); animation:pulse 2.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.6; transform:scale(.85);}}
+  .divider{width:1px; height:20px; background:var(--border);}
+  .crumbs{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); white-space:nowrap;}
+  .crumbs .on{color:var(--text);}
+  .leave{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; padding:7px 14px; border-radius:999px; border:1px solid var(--border); background:var(--surface); white-space:nowrap;}
+  .leave:hover{color:var(--text); border-color:var(--border-strong);}
+
+  /* Stage */
+  .stage{display:flex; justify-content:center; padding:40px 24px 160px;}
+  .column{width:100%; max-width:640px; display:flex; flex-direction:column; gap:20px;}
+
+  /* Room header */
+  .room-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 4px;
+  }
+  .sync-pill{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:7px 14px 7px 10px;
+    background:var(--surface); border:1px solid var(--border-accent); border-radius:999px;
+    -webkit-backdrop-filter:blur(24px) saturate(140%); backdrop-filter:blur(24px) saturate(140%);
+    box-shadow:0 0 20px var(--accent-glow);
+  }
+  .sync-pill .sync-dot{width:6px; height:6px; border-radius:999px; background:var(--accent); box-shadow:0 0 8px var(--accent-glow); animation:pulse 1.6s ease-in-out infinite;}
+  .sync-pill .sync-label{font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); white-space:nowrap;}
+  .sync-pill .sync-ms{font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:0.08em; white-space:nowrap;}
+  .room-head .room-time{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; color:var(--text-muted);}
+  .room-head .room-time .ontime{color:var(--text);}
+
+  /* Mode: solo — dim sync pill */
+  body[data-mode="solo"] .sync-pill{border-color:var(--border); box-shadow:none;}
+  body[data-mode="solo"] .sync-pill .sync-dot{background:var(--text-dim); box-shadow:none; animation:none;}
+  body[data-mode="solo"] .sync-pill .sync-label{color:var(--text-muted);}
+  body[data-mode="solo"] .participant.other{opacity:.25; filter:saturate(.5);}
+
+  /* Stage card */
+  .stage-card{
+    position:relative;
+    background:var(--surface);
+    -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
+    border:1px solid var(--border); border-radius:28px;
+    box-shadow:var(--shadow-raised), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding:36px 28px 28px;
+    overflow:hidden;
+  }
+  .stage-card::before{
+    content:""; position:absolute; inset:-40% -20% auto -20%; height:70%;
+    background:radial-gradient(ellipse at 50% 0%, rgba(29,185,84,0.14), transparent 60%);
+    pointer-events:none; opacity:.9;
+  }
+
+  .participants{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center;
+    margin-bottom:28px; position:relative;
+  }
+  .participant{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    min-width:0;
+  }
+  .p-avatar{
+    width:56px; height:56px; border-radius:16px;
+    border:1px solid var(--border-strong);
+    position:relative;
+  }
+  .p-avatar.a{background:radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%);}
+  .p-avatar.b{background:radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%);}
+  .p-avatar .live-ring{
+    content:""; position:absolute; inset:-5px; border-radius:20px;
+    border:1.5px solid var(--accent);
+    opacity:.8;
+    box-shadow:0 0 16px var(--accent-glow);
+    animation:ringPulse 2.4s ease-in-out infinite;
+  }
+  body[data-mode="solo"] .participant.other .live-ring{display:none;}
+  @keyframes ringPulse{0%,100%{opacity:.5; transform:scale(1);} 50%{opacity:.9; transform:scale(1.05);}}
+  .p-name{font-size:14px; font-weight:500; letter-spacing:-0.01em; white-space:nowrap;}
+  .p-sub{font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); display:flex; align-items:center; gap:6px; white-space:nowrap;}
+  .p-sub .mic{width:5px; height:5px; border-radius:999px; background:var(--accent); box-shadow:0 0 6px var(--accent-glow);}
+  body[data-mode="solo"] .participant.other .p-sub .mic{background:var(--text-dim); box-shadow:none;}
+
+  .link-line{
+    position:relative;
+    width:56px; height:1px;
+    background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity:.6;
+  }
+  body[data-mode="solo"] .link-line{background:linear-gradient(90deg, transparent, var(--text-dim), transparent); opacity:.3;}
+
+  /* Album art */
+  .album-stage{
+    display:flex; justify-content:center;
+    margin-bottom:24px;
+    position:relative;
+  }
+  .album-art{
+    width:260px; height:260px; border-radius:18px;
+    border:1px solid var(--border-strong);
+    background:
+      radial-gradient(at 30% 25%, rgba(255,107,157,0.35), transparent 55%),
+      radial-gradient(at 80% 80%, rgba(139,92,246,0.3), transparent 60%),
+      repeating-linear-gradient(115deg, #3d1d2a 0 14px, #21101a 14px 28px, #4a1f32 28px 40px);
+    position:relative; overflow:hidden;
+    box-shadow:var(--shadow-raised), 0 0 48px -8px var(--accent-glow);
+  }
+  .album-art::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.1), transparent 50%);
+  }
+  /* Pulse on playback */
+  body[data-playing="true"] .album-art{animation:breathe 3.8s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:scale(1);} 50%{transform:scale(1.012);}}
+
+  .track-meta{
+    text-align:center; margin-bottom:28px;
+  }
+  .track-title{
+    font-size:26px; letter-spacing:-0.02em; line-height:1.1;
+    font-weight:500; margin-bottom:6px;
+  }
+  .track-artist{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted);
+  }
+  .track-picker{
+    margin-top:10px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim);
+  }
+  .track-picker .who{color:var(--signal-warm);}
+  body[data-mode="solo"] .track-picker .who{color:var(--text-muted);}
+
+  /* Waveform */
+  .wave-wrap{
+    padding:16px 8px 10px;
+    border:1px solid var(--border); border-radius:16px;
+    background:rgba(255,255,255,0.02);
+    margin-bottom:20px;
+    position:relative;
+  }
+  .wave{
+    position:relative;
+    height:64px;
+    display:flex; align-items:center; gap:2px;
+    cursor:pointer;
+    --pos:35%;
+  }
+  .wave .bar{
+    flex:1;
+    border-radius:2px;
+    background:rgba(255,255,255,0.12);
+    min-height:6px;
+    transition:background .2s;
+  }
+  .wave .bar.played{background:var(--accent); box-shadow:0 0 6px rgba(29,185,84,0.3);}
+  .wave .bar.current{background:var(--accent); box-shadow:0 0 12px var(--accent-glow); transform:scaleY(1.05);}
+
+  .wave-reactions{
+    position:absolute;
+    inset:0 0 auto 0;
+    height:100%;
+    pointer-events:none;
+  }
+  .wr{
+    position:absolute;
+    top:-4px;
+    transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .wr .avatar{
+    width:16px; height:16px; border-radius:5px;
+    border:1.5px solid var(--bg);
+    background:radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%);
+  }
+  .wr.b .avatar{background:radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%);}
+  .wr .stem{
+    width:1px; height:22px;
+    background:linear-gradient(180deg, var(--accent), transparent);
+    opacity:.8;
+  }
+  body[data-mode="solo"] .wr.b{display:none;}
+
+  .wave-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:12px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; color:var(--text-muted);
+  }
+  .wave-foot .cur{color:var(--text);}
+
+  /* Transport */
+  .transport{
+    display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:center;
+    padding-bottom:4px;
+  }
+  .transport-left{display:flex; align-items:center; gap:10px;}
+  .transport-right{display:flex; align-items:center; gap:10px; justify-content:flex-end;}
+  .t-btn{
+    width:40px; height:40px; border-radius:999px;
+    background:var(--surface); border:1px solid var(--border); color:var(--text-muted);
+    -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .2s;
+  }
+  .t-btn:hover{color:var(--text); border-color:var(--border-strong);}
+  .t-btn.active{color:var(--accent); border-color:var(--border-accent); background:var(--accent-soft);}
+  .t-play{
+    width:64px; height:64px; border-radius:999px;
+    background:var(--accent); color:#0a0a0d; border:0;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow:0 0 28px var(--accent-glow);
+    transition:all .2s;
+  }
+  .t-play:hover{background:var(--accent-hover); transform:scale(1.04);}
+  .t-play svg{margin-left:2px;}
+  body[data-playing="true"] .t-play .icon-play{display:none;}
+  body[data-playing="false"] .t-play .icon-pause{display:none;}
+
+  /* Reactions dock */
+  .reactions-dock{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    z-index:60;
+    display:flex; align-items:center; gap:6px;
+    padding:10px 12px;
+    background:var(--surface-strong);
+    -webkit-backdrop-filter:blur(32px) saturate(180%); backdrop-filter:blur(32px) saturate(180%);
+    border:1px solid var(--border); border-radius:999px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    max-width:calc(100% - 32px);
+  }
+  .react-btn{
+    width:40px; height:40px; border-radius:999px;
+    background:transparent; border:1px solid transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; line-height:1;
+    transition:all .15s;
+  }
+  .react-btn:hover{background:var(--surface); border-color:var(--border);}
+  .react-btn:active{transform:scale(1.25);}
+  .react-divider{width:1px; height:24px; background:var(--border);}
+  .react-msg{
+    flex:1; background:transparent; border:0; color:var(--text);
+    font-family:var(--font-body); font-size:14px; padding:0 12px;
+    outline:none; min-width:140px;
+  }
+  .react-msg::placeholder{color:var(--text-dim);}
+  .react-send{
+    width:36px; height:36px; border-radius:999px;
+    background:var(--accent); color:#0a0a0d; border:0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 12px var(--accent-glow);
+  }
+  .react-send:hover{background:var(--accent-hover);}
+
+  /* Reaction bubble animation */
+  .bubble{
+    position:fixed;
+    bottom:90px; left:50%; transform:translateX(-50%);
+    font-size:32px; z-index:70;
+    animation:floatUp 1.4s cubic-bezier(.25,.8,.3,1) forwards;
+    pointer-events:none;
+  }
+  @keyframes floatUp{
+    0%{opacity:0; transform:translate(-50%, 10px) scale(.6);}
+    15%{opacity:1; transform:translate(-50%, 0) scale(1.1);}
+    100%{opacity:0; transform:translate(-50%, -240px) scale(1);}
+  }
+
+  /* Live moments feed */
+  .moments{
+    background:var(--surface);
+    -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
+    border:1px solid var(--border); border-radius:20px;
+    box-shadow:var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding:20px 24px;
+  }
+  .moments-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .moments-title{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); white-space:nowrap;}
+  .moments-count{font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; color:var(--text-muted); white-space:nowrap;}
+  .m-list{display:flex; flex-direction:column; gap:2px;}
+  .m-row{
+    display:grid; grid-template-columns:44px 24px 1fr; gap:12px;
+    align-items:center;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .m-row:last-child{border-bottom:0;}
+  .m-time{font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; color:var(--text-muted);}
+  .m-av{
+    width:22px; height:22px; border-radius:7px; border:1px solid var(--border-strong);
+  }
+  .m-av.a{background:radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%);}
+  .m-av.b{background:radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%);}
+  .m-text{font-size:14px; color:var(--text); letter-spacing:-0.01em; display:flex; align-items:center; gap:10px; min-width:0;}
+  .m-text .em{font-size:16px; flex:0 0 auto;}
+  .m-text .note{color:var(--text-muted); font-family:var(--font-mono); font-size:12px; letter-spacing:0.02em;}
+  body[data-mode="solo"] .m-row.b{display:none;}
+
+  /* Queue */
+  .queue{
+    background:var(--surface);
+    -webkit-backdrop-filter:blur(28px) saturate(140%); backdrop-filter:blur(28px) saturate(140%);
+    border:1px solid var(--border); border-radius:20px;
+    box-shadow:var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding:20px 24px;
+  }
+  .q-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .q-title{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); white-space:nowrap;}
+  .q-add{font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border:1px solid var(--border-accent); border-radius:999px; padding:5px 10px; cursor:pointer; white-space:nowrap;}
+  .q-add:hover{background:rgba(29,185,84,0.22);}
+  .q-row{
+    display:grid; grid-template-columns:28px 36px 1fr auto auto; gap:12px;
+    align-items:center; padding:8px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .q-row:last-child{border-bottom:0;}
+  .q-idx{font-family:var(--font-mono); font-size:11px; color:var(--text-dim); text-align:right;}
+  .q-art{width:36px; height:36px; border-radius:7px; border:1px solid var(--border);}
+  .q-art.a{background:repeating-linear-gradient(135deg, #1a1a22 0 8px, #141419 8px 18px);}
+  .q-art.b{background:repeating-linear-gradient(115deg, #3d1d2a 0 10px, #21101a 10px 24px);}
+  .q-art.c{background:repeating-linear-gradient(160deg, #16332b 0 12px, #0f1f1c 12px 24px);}
+  .q-info{min-width:0; display:flex; flex-direction:column;}
+  .q-name{font-size:13px; font-weight:500; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .q-artist{font-family:var(--font-mono); font-size:10px; color:var(--text-muted); letter-spacing:0.04em;}
+  .q-by{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); white-space:nowrap;
+  }
+  .q-by .av{width:14px; height:14px; border-radius:4px; border:1px solid var(--border-strong);}
+  .q-by .av.a{background:radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%);}
+  .q-by .av.b{background:radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%);}
+  .q-dur{font-family:var(--font-mono); font-size:11px; color:var(--text-dim); letter-spacing:0.04em;}
+
+  /* Tweaks */
+  .tweaks { position:fixed; right:24px; top:96px; z-index:100; width:240px;
+    background:var(--surface-strong); -webkit-backdrop-filter:blur(32px) saturate(180%); backdrop-filter:blur(32px) saturate(180%);
+    border:1px solid var(--border); border-radius:20px; padding:16px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06); display:none;
+  }
+  .tweaks.on{display:block;}
+  .tweaks h5{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin:0 0 12px; font-weight:500;}
+  .tweak-row{margin-bottom:14px;}
+  .tweak-row:last-child{margin-bottom:0;}
+  .tweak-label{font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;}
+  .tweak-seg{display:flex; padding:3px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:999px;}
+  .tweak-seg button{flex:1; background:transparent; color:var(--text-muted); border:0; padding:7px 10px; border-radius:999px; font-size:12px; font-weight:500; font-family:var(--font-body); cursor:pointer; transition:all .2s;}
+  .tweak-seg button.on{background:var(--accent-soft); color:var(--accent); box-shadow:inset 0 0 0 1px var(--border-accent);}
+  .tweak-seg button:hover:not(.on){color:var(--text);}
+
+  @media (max-width: 640px){
+    .stage{padding:24px 16px 140px;}
+    .stage-card{padding:28px 20px 22px;}
+    .album-art{width:220px; height:220px;}
+    .track-title{font-size:22px;}
+    .t-play{width:56px; height:56px;}
+    .crumbs{display:none;}
+    .tweaks{right:12px; top:auto; bottom:120px;}
+  }
+
+  .reveal{opacity:0; transform:translateY(12px); animation:reveal .7s cubic-bezier(.2,.7,.2,1) forwards;}
+  .reveal.d1{animation-delay:.06s;}
+  .reveal.d2{animation-delay:.14s;}
+  .reveal.d3{animation-delay:.22s;}
+  @keyframes reveal{to{opacity:1; transform:translateY(0);}}
+</style>
+</head>
+<body data-mode="together" data-playing="true">
+
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="Landing Page.html"><span class="dot"></span> Resonate</a>
+    <div class="divider"></div>
+    <div class="crumbs"><span class="on">Listening room</span> · with Maya</div>
+    <a class="leave" href="Chat.html">Leave room</a>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="column" data-screen-label="06 Listening Room">
+
+    <div class="room-head">
+      <div class="sync-pill">
+        <span class="sync-dot"></span>
+        <span class="sync-label" id="sync-label">In sync</span>
+        <span class="sync-ms" id="sync-ms">· 42ms</span>
+      </div>
+      <div class="room-time"><span class="ontime mono" id="room-time">14:28</span> together</div>
+    </div>
+
+    <article class="stage-card reveal">
+
+      <div class="participants">
+        <div class="participant you">
+          <div class="p-avatar a"><div class="live-ring"></div></div>
+          <div class="p-name">Jordan</div>
+          <div class="p-sub"><span class="mic"></span> You</div>
+        </div>
+        <div class="link-line"></div>
+        <div class="participant other">
+          <div class="p-avatar b"><div class="live-ring"></div></div>
+          <div class="p-name">Maya</div>
+          <div class="p-sub"><span class="mic"></span> Listening</div>
+        </div>
+      </div>
+
+      <div class="album-stage">
+        <div class="album-art" id="album-art"></div>
+      </div>
+
+      <div class="track-meta">
+        <h1 class="track-title" id="t-title">Delilah (pull me out of this)</h1>
+        <div class="track-artist" id="t-artist">FRED AGAIN.. · ACTUAL LIFE 3</div>
+        <div class="track-picker">Queued by <span class="who" id="t-picker">Maya</span></div>
+      </div>
+
+      <div class="wave-wrap">
+        <div class="wave" id="wave" aria-label="Playback scrubber" role="slider" aria-valuemin="0" aria-valuemax="229" aria-valuenow="80"></div>
+        <div class="wave-reactions" id="wave-reactions">
+          <div class="wr a" style="left:18%;" title="Jordan reacted"><div class="avatar"></div><div class="stem"></div></div>
+          <div class="wr b" style="left:41%;" title="Maya reacted"><div class="avatar"></div><div class="stem"></div></div>
+          <div class="wr a" style="left:58%;" title="Jordan reacted"><div class="avatar"></div><div class="stem"></div></div>
+        </div>
+        <div class="wave-foot">
+          <span class="cur mono" id="w-cur">1:20</span>
+          <span class="mono" id="w-tot">3:49</span>
+        </div>
+      </div>
+
+      <div class="transport">
+        <div class="transport-left">
+          <button class="t-btn" aria-label="Previous" type="button">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3v10l-1-1V4l1-1Zm1 5 7-5v10L6 8Z"/></svg>
+          </button>
+          <button class="t-btn active" id="btn-heart" aria-label="Heart" type="button">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13s-5-3.2-5-6.5A2.8 2.8 0 0 1 8 5a2.8 2.8 0 0 1 5 1.5C13 9.8 8 13 8 13Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="currentColor" fill-opacity=".25"/></svg>
+          </button>
+        </div>
+        <button class="t-play" id="btn-play" type="button" aria-label="Play/Pause">
+          <svg class="icon-pause" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="3" width="2.5" height="10" rx="1"/><rect x="9.5" y="3" width="2.5" height="10" rx="1"/></svg>
+          <svg class="icon-play" width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2v12l10-6-10-6Z"/></svg>
+        </button>
+        <div class="transport-right">
+          <button class="t-btn" aria-label="Add to playlist" type="button">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 5h8M3 8h8M3 11h5"/><path d="M12 9v5M10 11.5h4"/></svg>
+          </button>
+          <button class="t-btn" aria-label="Next" type="button">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M11 3v10l1-1V4l-1-1Zm-1 5-7-5v10l7-5Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Live moments -->
+    <div class="moments reveal d1">
+      <div class="moments-head">
+        <span class="moments-title">Moments · this track</span>
+        <span class="moments-count" id="m-count">4 reactions</span>
+      </div>
+      <div class="m-list" id="m-list">
+        <div class="m-row a">
+          <span class="m-time mono">0:42</span>
+          <span class="m-av a"></span>
+          <span class="m-text"><span class="em">🫠</span> <span class="note">The bassline dropping in.</span></span>
+        </div>
+        <div class="m-row b">
+          <span class="m-time mono">1:34</span>
+          <span class="m-av b"></span>
+          <span class="m-text"><span class="em">😭</span> <span class="note">"pull me out of this" — every time.</span></span>
+        </div>
+        <div class="m-row a">
+          <span class="m-time mono">2:12</span>
+          <span class="m-av a"></span>
+          <span class="m-text"><span class="em">🔥</span></span>
+        </div>
+        <div class="m-row b">
+          <span class="m-time mono">2:48</span>
+          <span class="m-av b"></span>
+          <span class="m-text"><span class="em">👀</span> <span class="note">is this the one you meant</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue reveal d2">
+      <div class="q-head">
+        <span class="q-title">Up next</span>
+        <button class="q-add" type="button">+ Add</button>
+      </div>
+      <div class="q-row">
+        <span class="q-idx">02</span>
+        <span class="q-art a"></span>
+        <div class="q-info">
+          <span class="q-name">Two Star</span>
+          <span class="q-artist">MK.GEE</span>
+        </div>
+        <span class="q-by"><span class="av a"></span> You</span>
+        <span class="q-dur">2:58</span>
+      </div>
+      <div class="q-row">
+        <span class="q-idx">03</span>
+        <span class="q-art b"></span>
+        <div class="q-info">
+          <span class="q-name">cellophane</span>
+          <span class="q-artist">FKA TWIGS</span>
+        </div>
+        <span class="q-by"><span class="av b"></span> Maya</span>
+        <span class="q-dur">3:21</span>
+      </div>
+      <div class="q-row">
+        <span class="q-idx">04</span>
+        <span class="q-art c"></span>
+        <div class="q-info">
+          <span class="q-name">Marea (we've lost dancing)</span>
+          <span class="q-artist">FRED AGAIN..</span>
+        </div>
+        <span class="q-by"><span class="av a"></span> You</span>
+        <span class="q-dur">6:06</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Reactions dock -->
+<div class="reactions-dock" role="toolbar" aria-label="React">
+  <button class="react-btn" data-emoji="🔥" type="button">🔥</button>
+  <button class="react-btn" data-emoji="😭" type="button">😭</button>
+  <button class="react-btn" data-emoji="🫠" type="button">🫠</button>
+  <button class="react-btn" data-emoji="👀" type="button">👀</button>
+  <button class="react-btn" data-emoji="💚" type="button">💚</button>
+  <div class="react-divider"></div>
+  <input class="react-msg" id="react-msg" placeholder="Say something about this part…" aria-label="Message"/>
+  <button class="react-send" id="react-send" type="button" aria-label="Send">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+</div>
+
+<!-- Tweaks -->
+<aside class="tweaks" id="tweaks" aria-label="Tweaks">
+  <h5>Tweaks</h5>
+  <div class="tweak-row">
+    <div class="tweak-label">Mode</div>
+    <div class="tweak-seg">
+      <button data-mode="together" type="button">Together</button>
+      <button data-mode="solo" type="button">Solo preview</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <div class="tweak-label">Track</div>
+    <div class="tweak-seg">
+      <button data-track="0" type="button">Delilah</button>
+      <button data-track="1" type="button">Two Star</button>
+      <button data-track="2" type="button">cellophane</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "mode": "together",
+    "track": 0
+  }/*EDITMODE-END*/;
+
+  const TRACKS = [
+    { title: "Delilah (pull me out of this)", artist: "FRED AGAIN.. · ACTUAL LIFE 3", dur: 229, picker: "Maya", bg: "radial-gradient(at 30% 25%, rgba(255,107,157,0.35), transparent 55%), radial-gradient(at 80% 80%, rgba(139,92,246,0.3), transparent 60%), repeating-linear-gradient(115deg, #3d1d2a 0 14px, #21101a 14px 28px, #4a1f32 28px 40px)" },
+    { title: "Two Star", artist: "MK.GEE · TWO STAR & THE DREAM POLICE", dur: 178, picker: "You", bg: "radial-gradient(at 30% 25%, rgba(255,200,120,0.25), transparent 55%), radial-gradient(at 80% 80%, rgba(60,40,30,0.5), transparent 60%), repeating-linear-gradient(135deg, #1a1a22 0 14px, #141419 14px 28px, #1f1f28 28px 36px)" },
+    { title: "cellophane", artist: "FKA TWIGS · MAGDALENE", dur: 201, picker: "Maya", bg: "radial-gradient(at 30% 25%, rgba(180,220,255,0.2), transparent 55%), radial-gradient(at 80% 80%, rgba(30,20,40,0.6), transparent 60%), repeating-linear-gradient(160deg, #16121f 0 14px, #0f0c16 14px 28px, #1e1830 28px 40px)" }
+  ];
+
+  const body = document.body;
+  const tweaks = document.getElementById('tweaks');
+
+  /* Build waveform */
+  const wave = document.getElementById('wave');
+  const BARS = 72;
+  let seed = 17;
+  function rand(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  for (let i = 0; i < BARS; i++){
+    const b = document.createElement('div');
+    b.className = 'bar';
+    const v = Math.pow(Math.sin(i * 0.28) * 0.5 + rand() * 0.55 + 0.25, 1.1);
+    b.style.height = (12 + v * 50) + 'px';
+    wave.appendChild(b);
+  }
+
+  let pos = 80; // seconds in
+  let duration = TRACKS[0].dur;
+  let playing = true;
+
+  function fmt(s){ s = Math.floor(s); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+
+  function renderWave(){
+    const pct = pos / duration;
+    const cur = Math.floor(pct * BARS);
+    [...wave.children].forEach((bar, i) => {
+      bar.classList.toggle('played', i < cur);
+      bar.classList.toggle('current', i === cur);
+    });
+    document.getElementById('w-cur').textContent = fmt(pos);
+    document.getElementById('w-tot').textContent = fmt(duration);
+    wave.setAttribute('aria-valuenow', Math.floor(pos));
+    wave.setAttribute('aria-valuemax', duration);
+  }
+
+  let tick = null;
+  function startTick(){
+    clearInterval(tick);
+    tick = setInterval(() => {
+      if (!playing) return;
+      pos = Math.min(duration, pos + 0.5);
+      renderWave();
+      if (pos >= duration) playing = false;
+    }, 500);
+  }
+
+  function setPlaying(on){
+    playing = on;
+    body.dataset.playing = on ? 'true' : 'false';
+  }
+
+  function setTrack(idx, { persist = true } = {}){
+    const t = TRACKS[idx]; if (!t) return;
+    document.getElementById('t-title').textContent = t.title;
+    document.getElementById('t-artist').textContent = t.artist;
+    document.getElementById('t-picker').textContent = t.picker;
+    document.getElementById('album-art').style.background = t.bg;
+    duration = t.dur;
+    pos = 0;
+    setPlaying(true);
+    renderWave();
+    tweaks.querySelectorAll('[data-track]').forEach(b => b.classList.toggle('on', +b.dataset.track === idx));
+    if (persist) {
+      try { window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ track: idx } }, '*'); } catch(e){}
+    }
+  }
+
+  function setMode(mode, { persist = true } = {}){
+    body.dataset.mode = mode;
+    tweaks.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+    document.getElementById('sync-label').textContent = mode === 'together' ? 'In sync' : 'Solo preview';
+    document.getElementById('sync-ms').textContent = mode === 'together' ? '· 42ms' : '· offline';
+    if (persist) {
+      try { window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ mode } }, '*'); } catch(e){}
+    }
+  }
+
+  /* Scrub */
+  wave.addEventListener('click', (e) => {
+    const rect = wave.getBoundingClientRect();
+    const p = (e.clientX - rect.left) / rect.width;
+    pos = Math.max(0, Math.min(duration, p * duration));
+    renderWave();
+  });
+
+  /* Play/pause */
+  document.getElementById('btn-play').addEventListener('click', () => setPlaying(!playing));
+
+  /* Reactions */
+  function floatReaction(emoji){
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.textContent = emoji;
+    document.body.appendChild(b);
+    setTimeout(() => b.remove(), 1500);
+  }
+  document.querySelectorAll('.react-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const e = btn.dataset.emoji;
+      floatReaction(e);
+      // Add to moments feed
+      const list = document.getElementById('m-list');
+      const row = document.createElement('div');
+      row.className = 'm-row a';
+      row.innerHTML = `<span class="m-time mono">${fmt(pos)}</span><span class="m-av a"></span><span class="m-text"><span class="em">${e}</span></span>`;
+      list.prepend(row);
+      while (list.children.length > 6) list.removeChild(list.lastChild);
+      const c = document.getElementById('m-count');
+      c.textContent = (parseInt(c.textContent) + 1) + ' reactions';
+    });
+  });
+
+  /* Message send */
+  const msg = document.getElementById('react-msg');
+  function sendMsg(){
+    const v = msg.value.trim(); if (!v) return;
+    const list = document.getElementById('m-list');
+    const row = document.createElement('div');
+    row.className = 'm-row a';
+    row.innerHTML = `<span class="m-time mono">${fmt(pos)}</span><span class="m-av a"></span><span class="m-text"><span class="note">${v.replace(/[<>]/g,'')}</span></span>`;
+    list.prepend(row);
+    while (list.children.length > 6) list.removeChild(list.lastChild);
+    msg.value = '';
+  }
+  document.getElementById('react-send').addEventListener('click', sendMsg);
+  msg.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMsg(); });
+
+  /* Tweaks wiring */
+  tweaks.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  tweaks.querySelectorAll('[data-track]').forEach(b => b.addEventListener('click', () => setTrack(+b.dataset.track)));
+
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') tweaks.classList.add('on');
+    else if (d.type === '__deactivate_edit_mode') tweaks.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type:'__edit_mode_available' }, '*'); } catch(e){}
+
+  /* Init */
+  setMode(TWEAK_DEFAULTS.mode || 'together', { persist: false });
+  setTrack(TWEAK_DEFAULTS.track ?? 0, { persist: false });
+  pos = 80; renderWave();
+  startTick();
+</script>
+</body>
+</html>

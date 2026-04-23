@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resonate — Connect Spotify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:              #0a0a0d;
+    --bg-elevated:     #111115;
+    --surface:         rgba(24, 24, 28, 0.55);
+    --surface-strong:  rgba(28, 28, 34, 0.78);
+    --surface-raised:  rgba(34, 34, 40, 0.85);
+    --text:            #f4f4f6;
+    --text-muted:      #a1a1aa;
+    --text-dim:        #6b6b75;
+    --border:          rgba(255, 255, 255, 0.08);
+    --border-strong:   rgba(255, 255, 255, 0.14);
+    --border-accent:   rgba(29, 185, 84, 0.40);
+    --accent:          #1DB954;
+    --accent-hover:    #1ED760;
+    --accent-soft:     rgba(29, 185, 84, 0.15);
+    --accent-glow:     rgba(29, 185, 84, 0.35);
+    --signal-warm:     #ff6b9d;
+    --signal-cool:     #8b5cf6;
+    --font-display:    "Inter", system-ui, sans-serif;
+    --font-body:       "Inter", system-ui, sans-serif;
+    --font-mono:       "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --shadow-card:     0 4px 16px rgba(0, 0, 0, 0.30);
+    --shadow-raised:   0 12px 48px rgba(0, 0, 0, 0.50);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { color-scheme: dark; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(at 15% 0%,  rgba(29, 185, 84, 0.12) 0%, transparent 55%),
+      radial-gradient(at 85% 20%, rgba(138, 43, 226, 0.10) 0%, transparent 50%),
+      radial-gradient(at 50% 90%, rgba(29, 185, 84, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.035 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  main, header { position: relative; z-index: 2; }
+
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  p { margin: 0; text-wrap: pretty; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* Minimal top bar with brand + step */
+  .topbar {
+    position: sticky; top: 24px; z-index: 50;
+    display: flex; justify-content: center;
+    padding: 0 32px;
+    margin-top: 24px;
+  }
+  .topbar-inner {
+    display: flex; align-items: center; gap: 20px;
+    padding: 10px 18px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); text-decoration: none; }
+  .brand-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .6; transform: scale(.85);} }
+  .step-crumbs { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
+  .crumb.on { color: var(--text); }
+  .crumb-sep { opacity: .5; }
+  .exit { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; }
+  .exit:hover { color: var(--text); }
+
+  /* Stage */
+  .stage {
+    display: flex; align-items: center; justify-content: center;
+    padding: 56px 24px 120px;
+    min-height: calc(100vh - 80px);
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 640px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    backdrop-filter: blur(32px) saturate(160%);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: var(--shadow-raised), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding: 44px 44px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel-halo {
+    position: absolute; inset: -40% -20% auto -20%; height: 80%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(29,185,84,0.18), transparent 60%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .5s ease;
+  }
+  .panel[data-state="scanning"] .panel-halo,
+  .panel[data-state="signature"] .panel-halo { opacity: 1; }
+
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .panel-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+  }
+  .panel-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 999px; background: var(--text-dim);
+  }
+  .panel[data-state="scanning"] .panel-eyebrow .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); animation: pulse 1.2s ease-in-out infinite; }
+  .panel[data-state="signature"] .panel-eyebrow .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+
+  .panel-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--text-dim); }
+
+  h1.panel-title {
+    font-size: clamp(34px, 4.4vw, 48px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+  .panel-sub {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.55;
+    max-width: 48ch;
+    margin-bottom: 32px;
+  }
+
+  /* Buttons */
+  .btn-spotify {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--accent); color: #0a0a0d;
+    font-weight: 600; font-size: 16px;
+    padding: 16px 26px;
+    border-radius: 999px;
+    border: 0;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .btn-spotify:hover { background: var(--accent-hover); box-shadow: 0 0 24px var(--accent-glow); transform: translateY(-1px); }
+  .btn-spotify:active { transform: translateY(0); box-shadow: inset 0 2px 8px rgba(0,0,0,0.25); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--text-muted);
+    font-weight: 500; font-size: 14px;
+    padding: 12px 16px; border-radius: 999px; border: 0;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--text); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--surface); color: var(--text);
+    font-weight: 500; font-size: 15px;
+    padding: 14px 22px; border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+    cursor: pointer; transition: all .2s ease;
+  }
+  .btn-secondary:hover { background: var(--surface-raised); border-color: rgba(255,255,255,0.2); }
+
+  .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* Trust row */
+  .trust {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .trust-item { display: flex; flex-direction: column; gap: 6px; }
+  .trust-title { font-size: 13px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .trust-title svg { color: var(--accent); flex: 0 0 auto; }
+  .trust-body { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* State visibility */
+  .state { display: none; }
+  .panel[data-state="idle"]      .state-idle      { display: block; }
+  .panel[data-state="scanning"]  .state-scanning  { display: block; }
+  .panel[data-state="signature"] .state-signature { display: block; }
+
+  /* ----- SCANNING STATE ----- */
+  .scan-wave {
+    height: 88px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 3px;
+    padding: 0 6px;
+    margin: 8px 0 28px;
+    border-radius: 16px;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(29,185,84,0.08), transparent 70%);
+  }
+  .scan-wave span {
+    display: block;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 4px;
+    opacity: 0.75;
+    animation: bar 1.4s ease-in-out infinite;
+  }
+  .scan-wave span:nth-child(odd) { opacity: 1; }
+  .scan-wave span:nth-child(3n)   { animation-duration: 1.8s; }
+  .scan-wave span:nth-child(5n)   { animation-duration: 1.1s; }
+  .scan-wave span:nth-child(7n)   { animation-duration: 1.6s; }
+  @keyframes bar { 0%,100% { height: 10%; } 50% { height: 78%; } }
+
+  .scan-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+  .sm-item { padding: 6px 12px; text-align: center; }
+  .sm-item + .sm-item { border-left: 1px solid var(--border); }
+  .sm-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .sm-value { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: 0.02em; }
+  .sm-value .live-num { display: inline-block; min-width: 3.6ch; text-align: left; }
+
+  .scan-feed {
+    max-height: 180px;
+    overflow: hidden;
+    position: relative;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-bottom: 24px;
+  }
+  .scan-feed::after {
+    content: ""; position: absolute; inset: auto 0 0 0; height: 60px;
+    background: linear-gradient(180deg, transparent, rgba(28,28,34,0.8));
+    pointer-events: none;
+  }
+  .feed-row {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: feedIn .5s ease forwards;
+  }
+  .feed-row .tick { color: var(--accent); }
+  .feed-row .name { color: var(--text); font-family: var(--font-body); font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }
+  .feed-row .name em { font-style: normal; color: var(--text-muted); font-weight: 400; }
+  .feed-row .dur { color: var(--text-dim); font-size: 11px; letter-spacing: 0.08em; }
+  @keyframes feedIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+  .scan-progress {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .scan-progress-fill {
+    display: block; height: 100%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    border-radius: 999px;
+    width: 0%;
+    transition: width .4s ease;
+  }
+  .scan-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+  }
+
+  /* ----- SIGNATURE STATE ----- */
+  .sig-head {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px;
+  }
+  .sig-avatar {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: radial-gradient(at 30% 30%, #a8d8ff, #1e3a5f 70%);
+    border: 1px solid var(--border);
+  }
+  .sig-name { font-size: 18px; font-weight: 500; letter-spacing: -0.01em; }
+  .sig-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+
+  /* Radar viz */
+  .sig-radar {
+    display: flex; justify-content: center;
+    padding: 12px 0 24px;
+  }
+  .sig-radar svg { width: 280px; height: 280px; }
+  .sig-radar .axis-line { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+  .sig-radar .axis-ring { stroke: rgba(255,255,255,0.05); fill: none; stroke-width: 1; }
+  .sig-radar .poly { fill: rgba(29,185,84,0.22); stroke: var(--accent); stroke-width: 1.5; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+  .sig-radar .poly-dot { fill: var(--accent); }
+  .sig-radar .axis-label { fill: var(--text-muted); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* Bars viz (alt) */
+  .sig-bars { display: none; padding: 4px 0 16px; }
+  .sig-bar-row {
+    display: grid; grid-template-columns: 92px 1fr 44px;
+    gap: 16px; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .sig-bar-row:last-child { border-bottom: 0; }
+  .sig-bar-row .track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+  .sig-bar-row .fill  { display: block; height: 100%; background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); border-radius: 999px; }
+  .sig-bar-row .val { text-align: right; font-size: 11px; color: var(--text); }
+
+  .panel[data-viz="bars"] .sig-radar { display: none; }
+  .panel[data-viz="bars"] .sig-bars  { display: block; }
+
+  .sig-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin: 8px 0 24px;
+  }
+  .sig-tag {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.04em;
+    color: var(--text-muted);
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.02);
+  }
+  .sig-tag.primary {
+    color: var(--accent); border-color: var(--border-accent); background: var(--accent-soft);
+  }
+
+  .sig-top {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 28px;
+  }
+  .sig-top-card {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.02);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sig-top-art {
+    width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+  .art-a { background: repeating-linear-gradient(135deg, #1a1a22 0 8px, #141419 8px 18px); }
+  .art-b { background: repeating-linear-gradient(115deg, #3d1d2a 0 10px, #21101a 10px 24px); }
+  .sig-top-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sig-top-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+  .sig-top-name { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Tweaks panel */
+  .tweaks {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 100;
+    width: 260px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    display: none;
+  }
+  .tweaks.on { display: block; }
+  .tweaks h5 {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0 0 12px; font-weight: 500;
+  }
+  .tweak-row { margin-bottom: 14px; }
+  .tweak-row:last-child { margin-bottom: 0; }
+  .tweak-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .tweak-seg {
+    display: flex;
+    padding: 3px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+  .tweak-seg button {
+    flex: 1;
+    background: transparent;
+    color: var(--text-muted);
+    border: 0;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tweak-seg button.on {
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--border-accent);
+  }
+  .tweak-seg button:hover:not(.on) { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .stage { padding: 32px 16px 80px; }
+    .panel { padding: 28px 24px; border-radius: 24px; }
+    .trust { grid-template-columns: 1fr; }
+    .sig-top { grid-template-columns: 1fr; }
+    .tweaks { left: 16px; right: 16px; bottom: 16px; width: auto; }
+  }
+
+  .reveal { opacity: 0; transform: translateY(12px); animation: reveal .7s cubic-bezier(.2,.7,.2,1) forwards; }
+  .reveal.d1 { animation-delay: .05s; }
+  .reveal.d2 { animation-delay: .12s; }
+  .reveal.d3 { animation-delay: .2s; }
+  .reveal.d4 { animation-delay: .28s; }
+  @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="Landing Page.html">
+      <span class="brand-dot"></span> Resonate
+    </a>
+    <div class="step-crumbs" aria-label="Onboarding progress">
+      <span class="crumb">01 Welcome</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb on">02 Connect</span>
+      <span class="crumb-sep">/</span>
+      <span class="crumb">03 Profile</span>
+    </div>
+    <a class="exit" href="Landing Page.html">Exit</a>
+  </div>
+</header>
+
+<main class="stage">
+
+  <div class="panel" id="panel" data-state="idle" data-viz="radar" data-screen-label="02 Connect">
+
+    <div class="panel-halo"></div>
+
+    <div class="panel-head">
+      <div class="panel-eyebrow">
+        <span class="dot"></span>
+        <span id="eyebrow-label">Ready to connect</span>
+      </div>
+      <div class="panel-count">02 / 03</div>
+    </div>
+
+    <!-- ============ IDLE ============ -->
+    <div class="state state-idle">
+      <h1 class="panel-title reveal">Let's read your listening.</h1>
+      <p class="panel-sub reveal d1">Connect your Spotify so Resonate can learn your sonic signature — the shape of your taste, not the labels on top. It takes about four seconds.</p>
+
+      <div class="actions reveal d2">
+        <button class="btn-spotify" id="btn-start" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#0a0a0d"/><path d="M17.2 16.4c-.2.3-.6.4-1 .2-2.6-1.6-5.9-2-9.8-1.1-.4.1-.7-.2-.8-.5-.1-.4.2-.7.5-.8 4.2-1 7.9-.6 10.8 1.2.4.2.4.6.3 1Zm1.4-3.1c-.2.4-.7.5-1.1.3-3-1.8-7.5-2.4-11-1.3-.5.1-.9-.1-1-.6-.1-.4.1-.9.6-1 4-1.2 9-.6 12.4 1.5.4.2.5.7.3 1.1ZM18.7 10c-3.5-2.1-9.4-2.3-12.8-1.2-.5.2-1.1-.1-1.3-.7-.2-.6.1-1.1.7-1.3 4-1.2 10.5-1 14.6 1.5.5.3.7 1 .4 1.5-.3.4-1 .6-1.5.3Z" fill="#0a0a0d"/></svg>
+          Connect Spotify
+        </button>
+        <button class="btn-ghost" id="btn-apple" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.1 12.6c0-2.2 1.8-3.3 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-2.9-.7-1.5 0-2.8.9-3.6 2.2-1.5 2.7-.4 6.6 1.1 8.8.7 1.1 1.6 2.3 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.7.7 2.9.7c1.2 0 2-1.1 2.7-2.2.8-1.3 1.2-2.5 1.2-2.6-.1 0-2.2-.9-2.2-3.5ZM14.8 6.1c.6-.7 1-1.8.9-2.8-.9 0-2 .6-2.6 1.3-.6.6-1.1 1.7-.9 2.7 1 .1 2-.5 2.6-1.2Z"/></svg>
+          Use Apple Music instead
+        </button>
+      </div>
+
+      <div class="trust">
+        <div class="trust-item">
+          <div class="trust-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 1.5 2 3.5v3.8c0 2.6 2 4.6 5 5.2 3-.6 5-2.6 5-5.2V3.5L7 1.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m5 7 1.6 1.6L9.5 5.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Read-only
+          </div>
+          <div class="trust-body">We never post. Never share. Never follow.</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 6V4.2a2.5 2.5 0 0 1 5 0V6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Your data, yours
+          </div>
+          <div class="trust-body">Delete everything with one tap. Anytime.</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4v3.2l2 1.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Four seconds
+          </div>
+          <div class="trust-body">Then you're seeing matches. Not sooner.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SCANNING ============ -->
+    <div class="state state-scanning">
+      <h1 class="panel-title">Reading your listening…</h1>
+      <p class="panel-sub">We're sampling your top tracks, the ones you play late, and the shape of what you skip.</p>
+
+      <div class="scan-wave" aria-hidden="true">
+        <!-- 48 bars -->
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="scan-metrics">
+        <div class="sm-item">
+          <div class="sm-label">Tracks read</div>
+          <div class="sm-value"><span class="live-num" id="m-tracks">0</span></div>
+        </div>
+        <div class="sm-item">
+          <div class="sm-label">Artists</div>
+          <div class="sm-value"><span class="live-num" id="m-artists">0</span></div>
+        </div>
+        <div class="sm-item">
+          <div class="sm-label">Minutes / mo</div>
+          <div class="sm-value"><span class="live-num" id="m-minutes">0</span></div>
+        </div>
+      </div>
+
+      <div class="scan-feed" id="feed" aria-live="polite"></div>
+
+      <div class="scan-progress"><span class="scan-progress-fill" id="progress"></span></div>
+      <div class="scan-foot">
+        <span id="progress-label">Sampling long-term listening</span>
+        <span class="mono" id="progress-pct">0%</span>
+      </div>
+    </div>
+
+    <!-- ============ SIGNATURE ============ -->
+    <div class="state state-signature">
+      <div class="sig-head">
+        <div class="sig-avatar"></div>
+        <div>
+          <div class="sig-name">Your sonic signature</div>
+          <div class="sig-meta">READ 10,842 MIN · 247 ARTISTS · 1,418 TRACKS</div>
+        </div>
+      </div>
+
+      <div class="sig-tags">
+        <span class="sig-tag primary">Late-night electronic</span>
+        <span class="sig-tag primary">Alt-R&amp;B</span>
+        <span class="sig-tag">Bedroom indie</span>
+        <span class="sig-tag">Post-dubstep</span>
+        <span class="sig-tag">Dream pop</span>
+      </div>
+
+      <!-- Radar -->
+      <div class="sig-radar">
+        <svg viewBox="-160 -140 320 280" aria-hidden="true">
+          <!-- rings -->
+          <polygon class="axis-ring" points="0,-100 95.1,-30.9 58.8,80.9 -58.8,80.9 -95.1,-30.9" />
+          <polygon class="axis-ring" points="0,-66 62.8,-20.4 38.8,53.4 -38.8,53.4 -62.8,-20.4" />
+          <polygon class="axis-ring" points="0,-33 31.4,-10.2 19.4,26.7 -19.4,26.7 -31.4,-10.2" />
+          <!-- axes -->
+          <line class="axis-line" x1="0" y1="0" x2="0" y2="-100"/>
+          <line class="axis-line" x1="0" y1="0" x2="95.1" y2="-30.9"/>
+          <line class="axis-line" x1="0" y1="0" x2="58.8" y2="80.9"/>
+          <line class="axis-line" x1="0" y1="0" x2="-58.8" y2="80.9"/>
+          <line class="axis-line" x1="0" y1="0" x2="-95.1" y2="-30.9"/>
+          <!-- data: energy 78, dance 62, mood 44, acoustic 31, tempo 71  -->
+          <!-- computed points (radius * value%) -->
+          <polygon class="poly"
+            points="0,-78  58.97,-19.16  37.6,51.74  -18.23,25.07  -67.55,-21.94"/>
+          <circle class="poly-dot" cx="0"      cy="-78"    r="3"/>
+          <circle class="poly-dot" cx="58.97"  cy="-19.16" r="3"/>
+          <circle class="poly-dot" cx="37.6"   cy="51.74"  r="3"/>
+          <circle class="poly-dot" cx="-18.23" cy="25.07"  r="3"/>
+          <circle class="poly-dot" cx="-67.55" cy="-21.94" r="3"/>
+          <!-- labels -->
+          <text class="axis-label" x="0"    y="-115" text-anchor="middle">Energy</text>
+          <text class="axis-label" x="110"  y="-32"  text-anchor="start">Dance</text>
+          <text class="axis-label" x="68"   y="97"   text-anchor="start">Mood</text>
+          <text class="axis-label" x="-68"  y="97"   text-anchor="end">Acoustic</text>
+          <text class="axis-label" x="-110" y="-32"  text-anchor="end">Tempo</text>
+        </svg>
+      </div>
+
+      <!-- Bars (alt viz) -->
+      <div class="sig-bars">
+        <div class="sig-bar-row"><span>Energy</span><span class="track"><span class="fill" style="width:78%;"></span></span><span class="val">0.78</span></div>
+        <div class="sig-bar-row"><span>Dance</span><span class="track"><span class="fill" style="width:62%;"></span></span><span class="val">0.62</span></div>
+        <div class="sig-bar-row"><span>Mood</span><span class="track"><span class="fill" style="width:44%;"></span></span><span class="val">0.44</span></div>
+        <div class="sig-bar-row"><span>Acoustic</span><span class="track"><span class="fill" style="width:31%;"></span></span><span class="val">0.31</span></div>
+        <div class="sig-bar-row"><span>Tempo</span><span class="track"><span class="fill" style="width:71%;"></span></span><span class="val">124 BPM</span></div>
+      </div>
+
+      <div class="sig-top">
+        <div class="sig-top-card">
+          <div class="sig-top-art art-a"></div>
+          <div class="sig-top-info">
+            <div class="sig-top-label">Top artist</div>
+            <div class="sig-top-name">Fred again..</div>
+          </div>
+        </div>
+        <div class="sig-top-card">
+          <div class="sig-top-art art-b"></div>
+          <div class="sig-top-info">
+            <div class="sig-top-label">Most played track</div>
+            <div class="sig-top-name">Delilah (pull me out of this)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-spotify" id="btn-continue" type="button">
+          Continue to profile
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m0 0L9 4m4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="btn-ghost" id="btn-rescan" type="button">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M12 7a5 5 0 1 1-1.46-3.54L12 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2v3h-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Re-read
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Tweaks panel (hidden until toolbar toggle) -->
+<aside class="tweaks" id="tweaks" aria-label="Tweaks">
+  <h5>Tweaks</h5>
+  <div class="tweak-row">
+    <div class="tweak-label">State</div>
+    <div class="tweak-seg" role="tablist">
+      <button data-state="idle" type="button">Idle</button>
+      <button data-state="scanning" type="button">Scanning</button>
+      <button data-state="signature" type="button">Signature</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <div class="tweak-label">Signature viz</div>
+    <div class="tweak-seg">
+      <button data-viz="radar" type="button">Radar</button>
+      <button data-viz="bars" type="button">Bars</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "state": "signature",
+    "viz": "bars"
+  }/*EDITMODE-END*/;
+
+  const panel = document.getElementById('panel');
+  const eyebrow = document.getElementById('eyebrow-label');
+  const tweaks = document.getElementById('tweaks');
+
+  const EYEBROW = {
+    idle:      'Ready to connect',
+    scanning:  'Reading…',
+    signature: 'Signature ready'
+  };
+
+  let scanTimer = null;
+  let feedTimer = null;
+
+  function setState(state, { persist = true } = {}) {
+    panel.dataset.state = state;
+    eyebrow.textContent = EYEBROW[state] || '';
+    // Update tweaks buttons
+    tweaks.querySelectorAll('[data-state]').forEach(b => b.classList.toggle('on', b.dataset.state === state));
+
+    if (state === 'scanning') startScan();
+    else stopScan();
+
+    if (persist) {
+      try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { state } }, '*'); } catch(e) {}
+    }
+  }
+
+  function setViz(viz, { persist = true } = {}) {
+    panel.dataset.viz = viz;
+    tweaks.querySelectorAll('[data-viz]').forEach(b => b.classList.toggle('on', b.dataset.viz === viz));
+    if (persist) {
+      try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { viz } }, '*'); } catch(e) {}
+    }
+  }
+
+  /* Scanning animation */
+  const SCAN_TRACKS = [
+    ['Delilah (pull me out of this)', 'Fred again..', '3:49'],
+    ['Two Star', 'Mk.gee', '2:58'],
+    ['cellophane', 'FKA twigs', '3:21'],
+    ['Sun', 'Caroline Polachek', '4:15'],
+    ['Rings a Bell', 'Mk.gee', '3:02'],
+    ['Marea (we\'ve lost dancing)', 'Fred again..', '6:06'],
+    ['Hayloft II', 'Mother Mother', '3:24'],
+    ['American Teenager', 'Ethel Cain', '5:05'],
+    ['Jimmy Cooks', 'Drake', '3:38'],
+    ['Club Classics', 'Charli XCX', '2:32']
+  ];
+
+  function startScan() {
+    // reset
+    const feed = document.getElementById('feed');
+    const progress = document.getElementById('progress');
+    const pct = document.getElementById('progress-pct');
+    const label = document.getElementById('progress-label');
+    const mTracks = document.getElementById('m-tracks');
+    const mArtists = document.getElementById('m-artists');
+    const mMinutes = document.getElementById('m-minutes');
+
+    feed.innerHTML = '';
+    progress.style.width = '0%';
+    pct.textContent = '0%';
+    mTracks.textContent = '0';
+    mArtists.textContent = '0';
+    mMinutes.textContent = '0';
+
+    let p = 0;
+    let tracks = 0;
+    let artistsCount = 0;
+    let minutes = 0;
+    let idx = 0;
+
+    const labels = [
+      'Sampling long-term listening',
+      'Reading top tracks',
+      'Analyzing audio features',
+      'Computing sonic signature',
+      'Clustering taste neighborhood'
+    ];
+
+    clearInterval(scanTimer);
+    clearInterval(feedTimer);
+
+    scanTimer = setInterval(() => {
+      p = Math.min(100, p + (2 + Math.random() * 4));
+      progress.style.width = p + '%';
+      pct.textContent = Math.round(p) + '%';
+      tracks = Math.min(1418, tracks + Math.round(20 + Math.random() * 60));
+      artistsCount = Math.min(247, artistsCount + Math.round(3 + Math.random() * 8));
+      minutes = Math.min(10842, minutes + Math.round(180 + Math.random() * 360));
+      mTracks.textContent = tracks.toLocaleString();
+      mArtists.textContent = artistsCount.toLocaleString();
+      mMinutes.textContent = minutes.toLocaleString();
+
+      label.textContent = labels[Math.min(labels.length - 1, Math.floor(p / 20))];
+
+      if (p >= 100) {
+        clearInterval(scanTimer);
+        clearInterval(feedTimer);
+        setTimeout(() => setState('signature'), 500);
+      }
+    }, 180);
+
+    feedTimer = setInterval(() => {
+      if (idx >= SCAN_TRACKS.length) { idx = 0; }
+      const [name, artist, dur] = SCAN_TRACKS[idx++];
+      const row = document.createElement('div');
+      row.className = 'feed-row';
+      row.innerHTML = `
+        <span class="tick">✓</span>
+        <span class="name">${name} <em>· ${artist}</em></span>
+        <span class="dur">${dur}</span>
+      `;
+      feed.prepend(row);
+      // Cap children to 8 so the fade covers nicely
+      while (feed.children.length > 8) feed.removeChild(feed.lastChild);
+    }, 260);
+  }
+
+  function stopScan() {
+    clearInterval(scanTimer);
+    clearInterval(feedTimer);
+  }
+
+  /* Button wiring */
+  document.getElementById('btn-start').addEventListener('click', () => setState('scanning'));
+  document.getElementById('btn-rescan').addEventListener('click', () => setState('scanning'));
+  document.getElementById('btn-continue').addEventListener('click', () => {
+    // Placeholder — would route to profile step
+    const btn = document.getElementById('btn-continue');
+    btn.style.transform = 'translateY(1px)';
+    setTimeout(() => btn.style.transform = '', 120);
+  });
+
+  /* Tweaks wiring */
+  tweaks.querySelectorAll('[data-state]').forEach(btn => {
+    btn.addEventListener('click', () => setState(btn.dataset.state));
+  });
+  tweaks.querySelectorAll('[data-viz]').forEach(btn => {
+    btn.addEventListener('click', () => setViz(btn.dataset.viz));
+  });
+
+  /* Edit-mode protocol */
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') tweaks.classList.add('on');
+    else if (d.type === '__deactivate_edit_mode') tweaks.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e) {}
+
+  /* Init from defaults */
+  setState(TWEAK_DEFAULTS.state || 'idle', { persist: false });
+  setViz(TWEAK_DEFAULTS.viz || 'radar', { persist: false });
+</script>
+</body>
+</html>

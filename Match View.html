@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resonate — Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:              #0a0a0d;
+    --bg-elevated:     #111115;
+    --surface:         rgba(24, 24, 28, 0.55);
+    --surface-strong:  rgba(28, 28, 34, 0.78);
+    --surface-raised:  rgba(34, 34, 40, 0.85);
+    --text:            #f4f4f6;
+    --text-muted:      #a1a1aa;
+    --text-dim:        #6b6b75;
+    --border:          rgba(255, 255, 255, 0.08);
+    --border-strong:   rgba(255, 255, 255, 0.14);
+    --border-accent:   rgba(29, 185, 84, 0.40);
+    --accent:          #1DB954;
+    --accent-hover:    #1ED760;
+    --accent-soft:     rgba(29, 185, 84, 0.15);
+    --accent-glow:     rgba(29, 185, 84, 0.35);
+    --signal-warm:     #ff6b9d;
+    --signal-cool:     #8b5cf6;
+    --font-display:    "Inter", system-ui, sans-serif;
+    --font-body:       "Inter", system-ui, sans-serif;
+    --font-mono:       "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --shadow-card:     0 4px 16px rgba(0, 0, 0, 0.30);
+    --shadow-raised:   0 12px 48px rgba(0, 0, 0, 0.50);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { color-scheme: dark; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background:
+      radial-gradient(at 15% 0%,  rgba(29, 185, 84, 0.12) 0%, transparent 55%),
+      radial-gradient(at 85% 20%, rgba(138, 43, 226, 0.10) 0%, transparent 50%),
+      radial-gradient(at 50% 90%, rgba(29, 185, 84, 0.08) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.035 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.5; mix-blend-mode: overlay; pointer-events: none; z-index: 1;
+  }
+  main, header { position: relative; z-index: 2; }
+
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0; text-wrap: pretty; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* Nav — floating pill (top-center desktop) */
+  .nav { position: sticky; top: 24px; z-index: 50; display: flex; justify-content: center; padding: 0 32px; margin-top: 24px; }
+  .nav-inner {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; padding: 0 14px 0 10px; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; border-right: 1px solid var(--border); height: 36px; }
+  .nav-brand .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .6; transform: scale(.85);} }
+
+  .nav-tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: all .2s; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--border-accent); }
+  .nav-tab svg { flex: 0 0 auto; }
+
+  .nav-avatar {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%);
+    border: 1px solid var(--border);
+    margin-left: 6px;
+  }
+
+  /* Stage */
+  .stage {
+    display: flex; justify-content: center;
+    padding: 48px 24px 120px;
+  }
+  .column { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* Queue indicator */
+  .queue {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .queue .step { color: var(--text-dim); }
+  .queue .step.on { color: var(--text); }
+  .queue-dots { display: flex; gap: 6px; }
+  .queue-dot { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08); }
+  .queue-dot.on { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+
+  /* ===== Match card ===== */
+  .match-card {
+    position: relative;
+    background: var(--surface);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow-raised), inset 0 1px 0 rgba(255,255,255,0.06);
+    overflow: hidden;
+    transition: border-color .4s ease, box-shadow .4s ease;
+  }
+  .match-card[data-resonance="high"] {
+    border-color: var(--border-accent);
+    box-shadow:
+      var(--shadow-raised),
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      0 -12px 40px -8px var(--accent-glow);
+  }
+
+  .match-photo {
+    position: relative;
+    aspect-ratio: 4 / 4.2;
+    overflow: hidden;
+  }
+  /* Three photo placeholders — different vibe per profile */
+  .photo-1 { background:
+      radial-gradient(at 30% 25%, rgba(255, 140, 170, 0.55), transparent 55%),
+      radial-gradient(at 70% 80%, rgba(80, 40, 100, 0.6), transparent 55%),
+      linear-gradient(160deg, #2a1420, #0e0a10);
+  }
+  .photo-2 { background:
+      radial-gradient(at 25% 30%, rgba(120, 200, 255, 0.4), transparent 55%),
+      radial-gradient(at 75% 80%, rgba(30, 90, 140, 0.55), transparent 55%),
+      linear-gradient(160deg, #0f1e2a, #08080e);
+  }
+  .photo-3 { background:
+      radial-gradient(at 35% 25%, rgba(255, 190, 130, 0.45), transparent 55%),
+      radial-gradient(at 75% 85%, rgba(150, 50, 80, 0.5), transparent 55%),
+      linear-gradient(160deg, #1f0f18, #0a0810);
+  }
+  /* silhouette hint */
+  .match-photo::before {
+    content: "";
+    position: absolute; inset: auto 0 0 0; height: 55%;
+    background:
+      radial-gradient(ellipse 35% 60% at 50% 100%, rgba(0,0,0,0.55), transparent 70%);
+  }
+  .match-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(10,10,13,0.85) 95%);
+  }
+
+  .photo-meta {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 24px 24px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    z-index: 2;
+  }
+  .photo-meta-top {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  }
+  .photo-meta-top > div:first-child { min-width: 0; }
+  .name-row {
+    display: flex; align-items: baseline; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .name {
+    font-size: 34px;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    font-weight: 500;
+  }
+  .age { font-family: var(--font-mono); font-size: 20px; color: var(--text-muted); letter-spacing: 0.02em; }
+  .location {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+    white-space: nowrap;
+  }
+  .location::before {
+    content: ""; width: 5px; height: 5px; border-radius: 999px; background: var(--text-muted); opacity: .6;
+  }
+
+  .resonance-badge {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px 8px 10px;
+    background: rgba(10,10,13,0.6);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--border-accent);
+    border-radius: 999px;
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  .match-card[data-resonance="mid"] .resonance-badge,
+  .match-card[data-resonance="low"] .resonance-badge {
+    border-color: var(--border);
+    box-shadow: none;
+  }
+  .match-card[data-resonance="mid"] .rb-val { color: var(--text); }
+  .match-card[data-resonance="low"] .rb-val { color: var(--text); }
+  .rb-ring {
+    position: relative;
+    width: 26px; height: 26px;
+  }
+  .rb-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .rb-ring .bg { stroke: rgba(255,255,255,0.08); }
+  .rb-ring .fg { stroke: var(--accent); filter: drop-shadow(0 0 4px var(--accent-glow)); transition: stroke-dashoffset .5s ease; }
+  .rb-val { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent); letter-spacing: 0.02em; }
+  .rb-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+
+  /* Now-playing chip overlaid on photo */
+  .now-playing {
+    position: absolute;
+    top: 16px; left: 16px; z-index: 3;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px 8px 10px;
+    background: rgba(10,10,13,0.65);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.06em; color: var(--text-muted);
+    max-width: 88%;
+  }
+  .now-playing .eq {
+    display: flex; align-items: flex-end; gap: 2px; height: 12px; flex: 0 0 auto;
+  }
+  .now-playing .eq span {
+    display: block; width: 2px; background: var(--accent); border-radius: 1px;
+    animation: eq 1s ease-in-out infinite;
+  }
+  .now-playing .eq span:nth-child(1) { height: 40%; animation-delay: -.6s; }
+  .now-playing .eq span:nth-child(2) { height: 100%; animation-delay: -.2s; }
+  .now-playing .eq span:nth-child(3) { height: 60%; animation-delay: -.4s; }
+  .now-playing .eq span:nth-child(4) { height: 80%; animation-delay: -.8s; }
+  @keyframes eq { 0%,100% { height: 20%; } 50% { height: 100%; } }
+  .now-playing .np-track { color: var(--text); font-family: var(--font-body); font-size: 12px; font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .now-playing .np-artist { color: var(--text-muted); white-space: nowrap; }
+
+  /* Photo pager dots */
+  .photo-pager {
+    position: absolute; top: 14px; right: 14px; z-index: 3;
+    display: flex; gap: 4px;
+    background: rgba(10,10,13,0.55);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    padding: 6px 10px; border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+  .photo-pager span { width: 16px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.15); }
+  .photo-pager span.on { background: var(--text); }
+
+  /* Card body */
+  .card-body {
+    padding: 28px 24px 24px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+
+  /* Signature comparison strip */
+  .sig-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0; }
+  .ss-item { padding: 4px 8px; }
+  .ss-item + .ss-item { border-left: 1px solid var(--border); }
+  .ss-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .ss-bars { display: flex; gap: 6px; align-items: center; }
+  .ss-bar-a, .ss-bar-b {
+    height: 3px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; flex: 1;
+  }
+  .ss-bar-a span { display: block; height: 100%; background: var(--text); opacity: .8; border-radius: 999px; }
+  .ss-bar-b span { display: block; height: 100%; background: var(--accent); border-radius: 999px; box-shadow: 0 0 8px var(--accent-glow); }
+  .ss-pct { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--text); margin-top: 6px; letter-spacing: 0.02em; }
+  .ss-pct .sign { color: var(--accent); font-size: 10px; margin-left: 4px; letter-spacing: 0.12em; }
+
+  /* Affinity block */
+  .affinity {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .aff-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .aff-head h3 { font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
+  .aff-head .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--text-muted); white-space: nowrap; flex: 0 0 auto; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.02);
+    white-space: nowrap;
+  }
+  .chip.shared { color: var(--accent); border-color: var(--border-accent); background: var(--accent-soft); }
+  .chip.new    { color: var(--signal-warm); border-color: rgba(255,107,157,0.35); background: rgba(255,107,157,0.08); }
+
+  /* Shared playlist */
+  .shared-pl {
+    padding: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .spl-head { display: flex; align-items: center; gap: 12px; }
+  .spl-art {
+    width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border);
+    background:
+      linear-gradient(135deg, rgba(29,185,84,0.25), transparent 60%),
+      repeating-linear-gradient(90deg, #1e3a5f 0 2px, #4a1f32 2px 4px);
+    position: relative; overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .spl-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .spl-title { font-size: 14px; font-weight: 500; letter-spacing: -0.01em; }
+  .spl-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--text-muted); }
+  .spl-play {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: var(--accent); color: #0a0a0d;
+    border: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px var(--accent-glow);
+    flex: 0 0 auto;
+    transition: transform .2s;
+  }
+  .spl-play:hover { transform: scale(1.05); background: var(--accent-hover); }
+
+  .spl-tracks { display: flex; flex-direction: column; gap: 2px; }
+  .spl-track {
+    display: grid; grid-template-columns: 20px 1fr auto; gap: 12px;
+    align-items: center;
+    padding: 6px 4px;
+    font-size: 13px;
+  }
+  .spl-track .idx { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); text-align: right; }
+  .spl-track .t-name { color: var(--text); font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spl-track .t-name em { font-style: normal; color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+  .spl-track .t-dur { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.04em; }
+
+  /* Blurb */
+  .blurb {
+    font-size: 16px; line-height: 1.55;
+    color: var(--text);
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .blurb::before {
+    content: ""; display: block;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim);
+    content: "IN THEIR WORDS";
+    margin-bottom: 10px;
+  }
+
+  /* Decision bar — sticky at bottom */
+  .decision {
+    position: sticky;
+    bottom: 16px;
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    align-items: center;
+  }
+  .dec-btn {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    transition: all .2s;
+  }
+  .dec-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .dec-primary {
+    height: 56px; border-radius: 999px;
+    background: var(--accent); color: #0a0a0d;
+    font-weight: 600; font-size: 15px;
+    border: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all .2s;
+    padding: 0 20px;
+  }
+  .dec-primary:hover { background: var(--accent-hover); box-shadow: 0 0 24px var(--accent-glow); }
+  .dec-primary:active { transform: translateY(1px); }
+  .dec-primary .song-thumb {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: repeating-linear-gradient(135deg, #2a1a22 0 4px, #141014 4px 8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    flex: 0 0 auto;
+  }
+  .dec-primary .song-meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; min-width: 0; }
+  .dec-primary .song-meta .lbl { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.75; }
+  .dec-primary .song-meta .nm { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+
+  /* Tweaks */
+  .tweaks {
+    position: fixed; right: 24px; bottom: 24px; z-index: 100;
+    width: 260px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    display: none;
+  }
+  .tweaks.on { display: block; }
+  .tweaks h5 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 12px; font-weight: 500; }
+  .tweak-row { margin-bottom: 14px; }
+  .tweak-row:last-child { margin-bottom: 0; }
+  .tweak-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .tweak-seg { display: flex; padding: 3px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 999px; }
+  .tweak-seg button { flex: 1; background: transparent; color: var(--text-muted); border: 0; padding: 7px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; font-family: var(--font-body); cursor: pointer; transition: all .2s; }
+  .tweak-seg button.on { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--border-accent); }
+  .tweak-seg button:hover:not(.on) { color: var(--text); }
+
+  /* Toast for send-a-song confirm */
+  .toast {
+    position: fixed;
+    top: 90px; left: 50%; transform: translateX(-50%) translateY(-16px);
+    z-index: 200;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid var(--border-accent);
+    border-radius: 999px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6), 0 0 24px var(--accent-glow);
+    font-size: 14px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s, transform .3s;
+  }
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast .chk { width: 18px; height: 18px; border-radius: 999px; background: var(--accent); color: #0a0a0d; display: flex; align-items: center; justify-content: center; }
+
+  @media (max-width: 640px) {
+    .stage { padding: 24px 16px 100px; }
+    .nav-tab span:not(.sr-only) { display: none; }
+    .nav { padding: 0 16px; }
+    .name { font-size: 28px; }
+    .card-body { padding: 24px 20px 20px; }
+  }
+
+  .reveal { opacity: 0; transform: translateY(12px); animation: reveal .7s cubic-bezier(.2,.7,.2,1) forwards; }
+  .reveal.d1 { animation-delay: .06s; }
+  .reveal.d2 { animation-delay: .12s; }
+  .reveal.d3 { animation-delay: .2s; }
+  @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><span class="dot"></span> Resonate</div>
+    <a class="nav-tab active" href="Match View.html">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12s-5-3.2-5-6.5A2.8 2.8 0 0 1 7 4a2.8 2.8 0 0 1 5 1.5C12 8.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span>Discover</span>
+    </a>
+    <a class="nav-tab" href="#">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 4h10M2 7h10M2 10h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span>Messages</span>
+    </a>
+    <a class="nav-tab" href="Connect Spotify.html">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 12c1-2 3-3 5-3s4 1 5 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span>You</span>
+    </a>
+    <div class="nav-avatar" aria-hidden="true"></div>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="column">
+
+    <div class="queue">
+      <span><span class="step on">Today's queue</span></span>
+      <div class="queue-dots" aria-hidden="true">
+        <span class="queue-dot on"></span>
+        <span class="queue-dot on"></span>
+        <span class="queue-dot" id="qd3"></span>
+        <span class="queue-dot"></span>
+        <span class="queue-dot"></span>
+      </div>
+      <span class="mono">02 / 05</span>
+    </div>
+
+    <!-- MATCH CARD -->
+    <article class="match-card reveal" id="card" data-resonance="high" data-screen-label="03 Match" data-profile="maya">
+
+      <!-- PHOTO -->
+      <div class="match-photo" id="photo">
+
+        <div class="now-playing" id="np">
+          <div class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <span>NOW ·</span>
+          <span class="np-track" id="np-track">Delilah</span>
+          <span class="np-artist" id="np-artist">Fred again..</span>
+        </div>
+
+        <div class="photo-pager" aria-hidden="true">
+          <span class="on"></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="photo-meta">
+          <div class="photo-meta-top">
+            <div>
+              <div class="name-row">
+                <span class="name" id="p-name">Maya</span>
+                <span class="age" id="p-age">27</span>
+              </div>
+              <div class="location" id="p-loc">Brooklyn · 2.4 mi</div>
+            </div>
+
+            <div class="resonance-badge" aria-label="Resonance score">
+              <div class="rb-ring">
+                <svg viewBox="0 0 32 32" aria-hidden="true">
+                  <circle class="bg" cx="16" cy="16" r="13" fill="none" stroke-width="3"/>
+                  <circle class="fg" id="rb-ring-fg" cx="16" cy="16" r="13" fill="none" stroke-width="3"
+                          stroke-dasharray="81.68" stroke-dashoffset="4.9" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div style="display:flex; flex-direction:column; line-height:1;">
+                <span class="rb-val" id="rb-val">94%</span>
+                <span class="rb-label">Resonance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body">
+
+        <!-- Signature comparison -->
+        <div class="sig-strip">
+          <div class="ss-item">
+            <div class="ss-label">Energy</div>
+            <div class="ss-bars">
+              <div class="ss-bar-a"><span style="width:78%;"></span></div>
+              <div class="ss-bar-b" id="ss-energy-b"><span style="width:82%;"></span></div>
+            </div>
+            <div class="ss-pct">88<span class="sign">MATCH</span></div>
+          </div>
+          <div class="ss-item">
+            <div class="ss-label">Mood</div>
+            <div class="ss-bars">
+              <div class="ss-bar-a"><span style="width:44%;"></span></div>
+              <div class="ss-bar-b" id="ss-mood-b"><span style="width:48%;"></span></div>
+            </div>
+            <div class="ss-pct">92<span class="sign">MATCH</span></div>
+          </div>
+          <div class="ss-item">
+            <div class="ss-label">Tempo</div>
+            <div class="ss-bars">
+              <div class="ss-bar-a"><span style="width:71%;"></span></div>
+              <div class="ss-bar-b" id="ss-tempo-b"><span style="width:68%;"></span></div>
+            </div>
+            <div class="ss-pct">76<span class="sign">MATCH</span></div>
+          </div>
+        </div>
+
+        <!-- Shared artists -->
+        <div class="affinity">
+          <div class="aff-head">
+            <h3>You both spin</h3>
+            <span class="n" id="shared-n">7 artists in common</span>
+          </div>
+          <div class="chips" id="shared-chips">
+            <span class="chip shared">Fred again..</span>
+            <span class="chip shared">Mk.gee</span>
+            <span class="chip shared">FKA twigs</span>
+            <span class="chip shared">The Japanese House</span>
+            <span class="chip shared">Caroline Polachek</span>
+            <span class="chip">+2 more</span>
+          </div>
+        </div>
+
+        <!-- Their territory -->
+        <div class="affinity">
+          <div class="aff-head">
+            <h3>Their territory</h3>
+            <span class="n">you haven't been</span>
+          </div>
+          <div class="chips" id="their-chips">
+            <span class="chip new">Yaeji</span>
+            <span class="chip new">Jessie Ware</span>
+            <span class="chip new">Overmono</span>
+            <span class="chip new">Jamie xx</span>
+          </div>
+        </div>
+
+        <!-- Shared playlist -->
+        <div class="shared-pl">
+          <div class="spl-head">
+            <div class="spl-art"></div>
+            <div class="spl-info">
+              <div class="spl-title" id="spl-title">Your shared vibe with Maya</div>
+              <div class="spl-sub">12 TRACKS · 47 MIN · LATE-NIGHT ELECTRONIC</div>
+            </div>
+            <button class="spl-play" aria-label="Play shared playlist">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 2v8l7-4-7-4Z"/></svg>
+            </button>
+          </div>
+          <div class="spl-tracks">
+            <div class="spl-track">
+              <span class="idx">01</span>
+              <span class="t-name">Rumble <em>· Skrillex, Fred again..</em></span>
+              <span class="t-dur">2:58</span>
+            </div>
+            <div class="spl-track">
+              <span class="idx">02</span>
+              <span class="t-name">Two Star <em>· Mk.gee</em></span>
+              <span class="t-dur">2:58</span>
+            </div>
+            <div class="spl-track">
+              <span class="idx">03</span>
+              <span class="t-name">cellophane <em>· FKA twigs</em></span>
+              <span class="t-dur">3:21</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blurb -->
+        <div class="blurb" id="blurb">
+          Aux-hoarder, reformed. I will play you the exact 40 seconds of a song that made me cry on the G train. Looking for someone who knows why Mk.gee is a big deal and will come to the show with me in October.
+        </div>
+
+      </div>
+
+      <!-- DECISION -->
+      <div class="decision" style="margin: 0 16px 16px;">
+        <button class="dec-btn" id="pass-btn" aria-label="Pass">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button class="dec-primary" id="send-btn" aria-label="Send a song">
+          <div class="song-thumb" aria-hidden="true"></div>
+          <div class="song-meta">
+            <span class="lbl">Send a song</span>
+            <span class="nm">Delilah — Fred again..</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m0 0L9 4m4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="dec-btn" id="save-btn" aria-label="Save for later">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 3h10v12l-5-3.5L4 15V3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+    </article>
+
+  </div>
+</main>
+
+<!-- Tweaks -->
+<aside class="tweaks" id="tweaks" aria-label="Tweaks">
+  <h5>Tweaks</h5>
+  <div class="tweak-row">
+    <div class="tweak-label">Profile</div>
+    <div class="tweak-seg">
+      <button data-profile="maya" type="button">Maya</button>
+      <button data-profile="idris" type="button">Idris</button>
+      <button data-profile="priya" type="button">Priya</button>
+    </div>
+  </div>
+  <div class="tweak-row">
+    <div class="tweak-label">Resonance</div>
+    <div class="tweak-seg">
+      <button data-resonance="high" type="button">High</button>
+      <button data-resonance="mid" type="button">Mid</button>
+      <button data-resonance="low" type="button">Low</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="chk"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="m2 5 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <span id="toast-msg">Song sent. Waiting for her to press play.</span>
+</div>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "profile": "maya",
+    "resonance": "high",
+    "state": "signature",
+    "viz": "radar"
+  }/*EDITMODE-END*/;
+
+  const PROFILES = {
+    maya: {
+      name: 'Maya', age: '27', loc: 'Brooklyn · 2.4 mi',
+      photo: 'photo-1',
+      np: ['Delilah', 'Fred again..'],
+      song: 'Delilah — Fred again..',
+      blurb: 'Aux-hoarder, reformed. I will play you the exact 40 seconds of a song that made me cry on the G train. Looking for someone who knows why Mk.gee is a big deal and will come to the show with me in October.',
+      shared: ['Fred again..', 'Mk.gee', 'FKA twigs', 'The Japanese House', 'Caroline Polachek', '+2 more'],
+      their:  ['Yaeji', 'Jessie Ware', 'Overmono', 'Jamie xx'],
+      sharedN: '7 artists in common',
+      plTitle: 'Your shared vibe with Maya',
+      toast: 'Song sent. Waiting for Maya to press play.'
+    },
+    idris: {
+      name: 'Idris', age: '29', loc: 'Bed-Stuy · 3.1 mi',
+      photo: 'photo-2',
+      np: ['Marea (we\'ve lost dancing)', 'Fred again..'],
+      song: 'Marea — Fred again..',
+      blurb: 'Basslines over brunch. I DJ a monthly in a basement you have to text someone to find. First-song proposal: something with space in it.',
+      shared: ['Fred again..', 'Burial', 'Mk.gee', 'Four Tet', 'Overmono', 'FKA twigs'],
+      their:  ['Objekt', 'Peverelist', 'Skee Mask'],
+      sharedN: '9 artists in common',
+      plTitle: 'Your shared vibe with Idris',
+      toast: 'Song sent. Waiting for Idris to press play.'
+    },
+    priya: {
+      name: 'Priya', age: '26', loc: 'Lower East · 4.8 mi',
+      photo: 'photo-3',
+      np: ['Sun', 'Caroline Polachek'],
+      song: 'Sun — Caroline Polachek',
+      blurb: 'I build synths on weekends. Will argue at length about the bridge in "Welcome To My Island." Coffee, then a record store, then we decide.',
+      shared: ['Caroline Polachek', 'Charli XCX', 'FKA twigs', 'Ethel Cain', 'Mk.gee'],
+      their:  ['Oneohtrix Point Never', 'ML Buch', 'Sevdaliza'],
+      sharedN: '6 artists in common',
+      plTitle: 'Your shared vibe with Priya',
+      toast: 'Song sent. Waiting for Priya to press play.'
+    }
+  };
+
+  const RESONANCE = {
+    high: { pct: 94, dash: 4.9,  energy: 88, mood: 92, tempo: 76 },
+    mid:  { pct: 72, dash: 22.9, energy: 64, mood: 71, tempo: 68 },
+    low:  { pct: 48, dash: 42.5, energy: 41, mood: 52, tempo: 39 }
+  };
+
+  const card = document.getElementById('card');
+  const photo = document.getElementById('photo');
+  const tweaks = document.getElementById('tweaks');
+
+  function setProfile(key, { persist = true } = {}) {
+    const p = PROFILES[key]; if (!p) return;
+    card.dataset.profile = key;
+    photo.className = 'match-photo ' + p.photo;
+    document.getElementById('p-name').textContent = p.name;
+    document.getElementById('p-age').textContent  = p.age;
+    document.getElementById('p-loc').textContent  = p.loc;
+    document.getElementById('np-track').textContent  = p.np[0];
+    document.getElementById('np-artist').textContent = p.np[1];
+    document.getElementById('blurb').textContent = p.blurb;
+    document.getElementById('spl-title').textContent = p.plTitle;
+    document.getElementById('shared-n').textContent = p.sharedN;
+
+    const sc = document.getElementById('shared-chips');
+    sc.innerHTML = '';
+    p.shared.forEach(a => {
+      const s = document.createElement('span');
+      s.className = 'chip' + (a.startsWith('+') ? '' : ' shared');
+      s.textContent = a;
+      sc.appendChild(s);
+    });
+    const tc = document.getElementById('their-chips');
+    tc.innerHTML = '';
+    p.their.forEach(a => {
+      const s = document.createElement('span');
+      s.className = 'chip new'; s.textContent = a; tc.appendChild(s);
+    });
+
+    // Update send-song label
+    document.querySelector('#send-btn .song-meta .nm').textContent = p.song;
+
+    tweaks.querySelectorAll('[data-profile]').forEach(b => b.classList.toggle('on', b.dataset.profile === key));
+
+    if (persist) {
+      try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { profile: key } }, '*'); } catch(e) {}
+    }
+  }
+
+  function setResonance(key, { persist = true } = {}) {
+    const r = RESONANCE[key]; if (!r) return;
+    card.dataset.resonance = key;
+    document.getElementById('rb-val').textContent = r.pct + '%';
+    document.getElementById('rb-ring-fg').setAttribute('stroke-dashoffset', r.dash);
+    // Signature strip b-bars
+    document.querySelector('#ss-energy-b span').style.width = r.energy + '%';
+    document.querySelector('#ss-mood-b span').style.width   = r.mood + '%';
+    document.querySelector('#ss-tempo-b span').style.width  = r.tempo + '%';
+    tweaks.querySelectorAll('[data-resonance]').forEach(b => b.classList.toggle('on', b.dataset.resonance === key));
+    if (persist) {
+      try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { resonance: key } }, '*'); } catch(e) {}
+    }
+  }
+
+  /* Decision actions */
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toast-msg');
+  let toastTimer = null;
+  function showToast(text) {
+    toastMsg.textContent = text;
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 2400);
+  }
+
+  document.getElementById('send-btn').addEventListener('click', () => {
+    const key = card.dataset.profile;
+    showToast(PROFILES[key].toast);
+  });
+  document.getElementById('pass-btn').addEventListener('click', () => {
+    // Cycle to next profile as a little taste of the flow
+    const order = ['maya', 'idris', 'priya'];
+    const next = order[(order.indexOf(card.dataset.profile) + 1) % order.length];
+    setProfile(next);
+    showToast('Passed. Finding the next one.');
+    document.getElementById('qd3').classList.add('on');
+  });
+  document.getElementById('save-btn').addEventListener('click', () => {
+    showToast('Saved to your queue.');
+  });
+
+  tweaks.querySelectorAll('[data-profile]').forEach(b => b.addEventListener('click', () => setProfile(b.dataset.profile)));
+  tweaks.querySelectorAll('[data-resonance]').forEach(b => b.addEventListener('click', () => setResonance(b.dataset.resonance)));
+
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') tweaks.classList.add('on');
+    else if (d.type === '__deactivate_edit_mode') tweaks.classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e) {}
+
+  setProfile(TWEAK_DEFAULTS.profile || 'maya', { persist: false });
+  setResonance(TWEAK_DEFAULTS.resonance || 'high', { persist: false });
+</script>
+</body>
+</html>
