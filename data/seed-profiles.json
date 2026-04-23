@@ -1,0 +1,250 @@
+[
+  {
+    "id": "profile_1",
+    "name": "Samantha",
+    "age": 21,
+    "pronouns": "she/her",
+    "bio": "Aux-hoarder, reformed. I will play you the exact 40 seconds of a song that made me cry on the G train.",
+    "photo": "/images/profiles/profile-1.jpg",
+    "nowPlaying": {
+      "track": "Best Part",
+      "artist": "Daniel Caesar",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/27/40/34/274034b3-42d9-ba59-b22c-dc4f57672ee0/886446799513.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "A song I'd put on a first-date playlist", "answer": "Daniel Caesar — 'Best Part.' Not because it's safe. Because it means it." },
+      { "question": "My most embarrassing concert memory", "answer": "Front row at a Fred again.. set. Delilah dropped and I genuinely cried. Everyone else was dancing. Zero regrets." }
+    ],
+    "topArtists": ["Daniel Caesar", "Knock2", "SZA", "Brent Faiyaz", "Jorja Smith"],
+    "topGenres": ["R&B", "Soul", "Electronic"],
+    "compatibility": 94,
+    "sharedArtists": ["Daniel Caesar", "Knock2", "Brent Faiyaz"],
+    "signature": { "energy": 82, "mood": 88, "tempo": 74 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/27/40/34/274034b3-42d9-ba59-b22c-dc4f57672ee0/886446799513.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 11 MIN",
+      "tracks": [
+        { "title": "Best Part", "artist": "Daniel Caesar", "duration": "3:56" },
+        { "title": "Rock Ur World", "artist": "Knock2", "duration": "2:45" },
+        { "title": "Gravity", "artist": "Brent Faiyaz", "duration": "3:58" }
+      ]
+    }
+  },
+  {
+    "id": "profile_2",
+    "name": "Ava",
+    "age": 19,
+    "pronouns": "she/her",
+    "bio": "I DJ a monthly in a basement you have to text someone to find. Basslines over brunch, always.",
+    "photo": "/images/profiles/profile-2.jpg",
+    "nowPlaying": {
+      "track": "Rock Ur World",
+      "artist": "Knock2",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/c5/2e/dc/c52edcf6-8a0d-6959-1a57-09708ad49556/cover.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "If we dated, our shared playlist would sound like", "answer": "A freight train with really good speakers. ISOxo, then Skrillex, then surprisingly Daniel Caesar at the very end." },
+      { "question": "The album that lives rent-free in my head", "answer": "Skrillex's 'Quest For Fire.' Listened to it while cooking, running, and staring at the ceiling. It's been a year." }
+    ],
+    "topArtists": ["Knock2", "ISOxo", "Skrillex", "Four Tet", "Burial"],
+    "topGenres": ["Electronic", "Bass", "House"],
+    "compatibility": 91,
+    "sharedArtists": ["Knock2", "ISOxo", "Skrillex"],
+    "signature": { "energy": 91, "mood": 78, "tempo": 88 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/c5/2e/dc/c52edcf6-8a0d-6959-1a57-09708ad49556/cover.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 9 MIN",
+      "tracks": [
+        { "title": "Rock Ur World", "artist": "Knock2", "duration": "2:45" },
+        { "title": "how2fly", "artist": "ISOxo", "duration": "3:12" },
+        { "title": "Rumble", "artist": "Skrillex, Fred again..", "duration": "2:58" }
+      ]
+    }
+  },
+  {
+    "id": "profile_3",
+    "name": "Kalyssa",
+    "age": 20,
+    "pronouns": "she/her",
+    "bio": "K-pop and alt-R&B aren't as different as people think. I'll die on this hill. Let's go to a show and argue about it.",
+    "photo": "/images/profiles/profile-3.jpg",
+    "nowPlaying": {
+      "track": "OMG",
+      "artist": "NewJeans",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/48/96/08/4896085e-b550-cb0a-3e5b-1f203521cb82/196922265464_Cover.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "A song I'd put on a first-date playlist", "answer": "NewJeans — 'Hype Boy.' It has the energy of 'I already like you' without saying it out loud." },
+      { "question": "If we dated, our shared playlist would sound like", "answer": "Starts with TWICE. Somewhere in the middle it's Daniel Caesar. Ends with something you didn't expect at all." }
+    ],
+    "topArtists": ["TWICE", "NewJeans", "keshi", "Daniel Caesar", "Bruno Mars"],
+    "topGenres": ["K-Pop", "R&B", "Pop"],
+    "compatibility": 89,
+    "sharedArtists": ["TWICE", "Daniel Caesar", "keshi"],
+    "signature": { "energy": 76, "mood": 82, "tempo": 68 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/03/76/e6/0376e6f9-f6d8-68f7-ae85-1a4ef17002aa/00602508875229_Cover.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 11 MIN",
+      "tracks": [
+        { "title": "FANCY", "artist": "TWICE", "duration": "3:13" },
+        { "title": "Best Part", "artist": "Daniel Caesar", "duration": "3:56" },
+        { "title": "drunk", "artist": "keshi", "duration": "3:52" }
+      ]
+    }
+  },
+  {
+    "id": "profile_4",
+    "name": "Emily",
+    "age": 22,
+    "pronouns": "she/her",
+    "bio": "My taste runs heavy — trap, bass, dark R&B — but I'm a secret fan of anything with a really good chord.",
+    "photo": "/images/profiles/profile-4.jpg",
+    "nowPlaying": {
+      "track": "No Idea",
+      "artist": "Don Toliver",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a5/c2/a5/a5c2a541-9f56-7c98-eb01-3c3198267851/075679823908.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "My most embarrassing concert memory", "answer": "Showed up to a Don Toliver show alone. Left with four new friends and a blurry video I still can't explain." },
+      { "question": "The album that lives rent-free in my head", "answer": "Don Toliver's 'Life Of A Don.' I know every syllable. I have listened to it during every mood. I'm not sorry." }
+    ],
+    "topArtists": ["Don Toliver", "ISOxo", "Brent Faiyaz", "Travis Scott", "21 Savage"],
+    "topGenres": ["Hip-Hop", "R&B", "Electronic"],
+    "compatibility": 87,
+    "sharedArtists": ["Don Toliver", "ISOxo", "Brent Faiyaz"],
+    "signature": { "energy": 71, "mood": 74, "tempo": 80 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a5/c2/a5/a5c2a541-9f56-7c98-eb01-3c3198267851/075679823908.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 10 MIN",
+      "tracks": [
+        { "title": "No Idea", "artist": "Don Toliver", "duration": "2:50" },
+        { "title": "how2fly", "artist": "ISOxo", "duration": "3:12" },
+        { "title": "Gravity", "artist": "Brent Faiyaz", "duration": "3:58" }
+      ]
+    }
+  },
+  {
+    "id": "profile_5",
+    "name": "Mariah",
+    "age": 18,
+    "pronouns": "she/her",
+    "bio": "My listening history is 60% ambient and 40% the highest BPM I could find. Proud of it. No in between.",
+    "photo": "/images/profiles/profile-5.jpg",
+    "nowPlaying": {
+      "track": "Beautiful Now",
+      "artist": "Zedd",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/2d/b6/57/2db6571e-c770-ee80-7567-f8cb94a6f370/15UMGIM20773.rgb.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "If we dated, our shared playlist would sound like", "answer": "Very long build-up. Ridiculous drop. Then complete silence. Like a conversation that goes somewhere real." },
+      { "question": "My most embarrassing concert memory", "answer": "Wore earplugs to a Skrillex set because I'm responsible and immediately regretted it when the bass hit. Never again." }
+    ],
+    "topArtists": ["Zedd", "Skrillex", "Knock2", "Dua Lipa", "Four Tet"],
+    "topGenres": ["Electronic", "House", "Bass"],
+    "compatibility": 85,
+    "sharedArtists": ["Zedd", "Skrillex", "Knock2"],
+    "signature": { "energy": 86, "mood": 72, "tempo": 76 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/2d/b6/57/2db6571e-c770-ee80-7567-f8cb94a6f370/15UMGIM20773.rgb.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 9 MIN",
+      "tracks": [
+        { "title": "Beautiful Now", "artist": "Zedd", "duration": "3:39" },
+        { "title": "Rumble", "artist": "Skrillex, Fred again..", "duration": "2:58" },
+        { "title": "Rock Ur World", "artist": "Knock2", "duration": "2:45" }
+      ]
+    }
+  },
+  {
+    "id": "profile_6",
+    "name": "Andrea",
+    "age": 21,
+    "pronouns": "she/her",
+    "bio": "Late-night drives and slow R&B. Looking for someone who treats a good chord progression like a sacred event.",
+    "photo": "/images/profiles/profile-6.jpg",
+    "nowPlaying": {
+      "track": "Gravity",
+      "artist": "Brent Faiyaz",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/30/1b/30/301b30ef-9bb5-8fbd-6bdc-30552aefd0c6/8DrDvnuaSqqztj1vOGwY_Wasteland-Final6.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "A song I'd put on a first-date playlist", "answer": "GIVĒON — 'For Tonight.' It's a risk. It's the right risk." },
+      { "question": "The album that lives rent-free in my head", "answer": "Brent Faiyaz 'Wasteland.' Listened to it start to finish more times than I've slept this year." }
+    ],
+    "topArtists": ["Brent Faiyaz", "GIVĒON", "Daniel Caesar", "SZA", "Bryson Tiller"],
+    "topGenres": ["R&B", "Soul", "Alternative"],
+    "compatibility": 82,
+    "sharedArtists": ["Brent Faiyaz", "GIVĒON", "Daniel Caesar"],
+    "signature": { "energy": 68, "mood": 86, "tempo": 70 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/30/1b/30/301b30ef-9bb5-8fbd-6bdc-30552aefd0c6/8DrDvnuaSqqztj1vOGwY_Wasteland-Final6.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 11 MIN",
+      "tracks": [
+        { "title": "Gravity", "artist": "Brent Faiyaz", "duration": "3:58" },
+        { "title": "For Tonight", "artist": "GIVĒON", "duration": "3:04" },
+        { "title": "Best Part", "artist": "Daniel Caesar", "duration": "3:56" }
+      ]
+    }
+  },
+  {
+    "id": "profile_7",
+    "name": "Tina",
+    "age": 20,
+    "pronouns": "she/her",
+    "bio": "TWICE changed my life in 2019 and I've never looked back. I also love sad boy R&B. The two live in harmony.",
+    "photo": "/images/profiles/profile-7.jpg",
+    "nowPlaying": {
+      "track": "FANCY",
+      "artist": "TWICE",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/03/76/e6/0376e6f9-f6d8-68f7-ae85-1a4ef17002aa/00602508875229_Cover.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "The album that lives rent-free in my head", "answer": "TWICE 'Formula Of Love.' I know it's technically a studio album. I also know every word of every track on it." },
+      { "question": "My most embarrassing concert memory", "answer": "Cried at a KISS OF LIFE show because the harmonies hit different live. Everyone else was vibing. I was silently overwhelmed." }
+    ],
+    "topArtists": ["TWICE", "KISS OF LIFE", "NewJeans", "keshi", "Ariana Grande"],
+    "topGenres": ["K-Pop", "Pop", "R&B"],
+    "compatibility": 79,
+    "sharedArtists": ["TWICE", "keshi", "Ariana Grande"],
+    "signature": { "energy": 74, "mood": 78, "tempo": 72 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/03/76/e6/0376e6f9-f6d8-68f7-ae85-1a4ef17002aa/00602508875229_Cover.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 10 MIN",
+      "tracks": [
+        { "title": "FANCY", "artist": "TWICE", "duration": "3:13" },
+        { "title": "drunk", "artist": "keshi", "duration": "3:52" },
+        { "title": "positions", "artist": "Ariana Grande", "duration": "2:51" }
+      ]
+    }
+  },
+  {
+    "id": "profile_8",
+    "name": "Emmy",
+    "age": 19,
+    "pronouns": "she/her",
+    "bio": "Got into electronic music through video game soundtracks in 2015. Now I go to ISOxo shows and feel things I cannot name.",
+    "photo": "/images/profiles/profile-8.jpg",
+    "nowPlaying": {
+      "track": "how2fly",
+      "artist": "ISOxo",
+      "albumArt": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/27/3c/70/273c70fa-07ac-2b0e-793b-0a71545927d8/197189920790.jpg/400x400bb.jpg"
+    },
+    "prompts": [
+      { "question": "A song I'd put on a first-date playlist", "answer": "ISOxo — 'how2fly.' It builds for two minutes then it hits. That's the vibe I'm going for." },
+      { "question": "If we dated, our shared playlist would sound like", "answer": "Half bass music you can feel in your chest, half Don Toliver being emotionally complicated. Perfect balance." }
+    ],
+    "topArtists": ["ISOxo", "Juelz", "Don Toliver", "P-Lo", "Blxst"],
+    "topGenres": ["Electronic", "Hip-Hop", "Bass"],
+    "compatibility": 76,
+    "sharedArtists": ["ISOxo", "Juelz", "Don Toliver"],
+    "signature": { "energy": 80, "mood": 62, "tempo": 78 },
+    "playlist": {
+      "coverArt": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/27/3c/70/273c70fa-07ac-2b0e-793b-0a71545927d8/197189920790.jpg/400x400bb.jpg",
+      "subtitle": "3 TRACKS · 9 MIN",
+      "tracks": [
+        { "title": "how2fly", "artist": "ISOxo", "duration": "3:12" },
+        { "title": "No Idea", "artist": "Don Toliver", "duration": "2:50" },
+        { "title": "3AM", "artist": "Juelz", "duration": "2:58" }
+      ]
+    }
+  }
+]

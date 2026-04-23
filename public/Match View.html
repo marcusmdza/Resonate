@@ -476,6 +476,91 @@
   .reveal.d2 { animation-delay: .12s; }
   .reveal.d3 { animation-delay: .2s; }
   @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Match overlay ───────────────────────────────────────────────────────── */
+  #match-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(10, 10, 13, 0.88);
+    -webkit-backdrop-filter: blur(32px) saturate(140%);
+    backdrop-filter: blur(32px) saturate(140%);
+    padding: 24px;
+    opacity: 0; transition: opacity .4s ease;
+  }
+  #match-overlay.visible { opacity: 1; }
+
+  .mo-inner {
+    position: relative; overflow: hidden;
+    width: 100%; max-width: 400px;
+    padding: 48px 36px 40px;
+    background: var(--surface-strong);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+    backdrop-filter: blur(32px) saturate(160%);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.06);
+    text-align: center;
+    transform: scale(0.92); transition: transform .45s cubic-bezier(.2,.7,.2,1);
+  }
+  #match-overlay.visible .mo-inner { transform: scale(1); }
+
+  .mo-glow {
+    position: absolute; top: -60%; left: -20%; right: -20%; height: 80%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(29,185,84,0.24), transparent 60%);
+    pointer-events: none;
+  }
+
+  .mo-avatars {
+    position: relative; display: flex; justify-content: center;
+    align-items: center; margin-bottom: 28px;
+  }
+  .mo-av {
+    width: 72px; height: 72px; border-radius: 20px;
+    border: 2px solid var(--border-strong);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    position: relative; z-index: 2;
+  }
+  .mo-av-you { background: radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%); margin-right: -12px; }
+  .mo-av-them {
+    border-color: var(--border-accent);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 28px var(--accent-glow);
+    background: radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%);
+    margin-left: -12px; z-index: 1;
+  }
+  .mo-link {
+    position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.75; border-radius: 999px;
+  }
+
+  .mo-eyebrow {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+  }
+  .mo-title {
+    font-size: 52px; letter-spacing: -0.035em; font-weight: 500;
+    line-height: 1; color: var(--text); margin-bottom: 12px;
+  }
+  .mo-sub { font-size: 16px; color: var(--text-muted); line-height: 1.5; margin-bottom: 32px; }
+
+  .mo-actions { display: flex; flex-direction: column; gap: 10px; }
+  .mo-btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    background: var(--accent); color: #0a0a0d;
+    font-weight: 600; font-size: 16px;
+    padding: 16px 26px; border-radius: 999px; border: 0;
+    text-decoration: none; cursor: pointer;
+    box-shadow: 0 0 28px var(--accent-glow); transition: all .2s ease;
+  }
+  .mo-btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .mo-btn-ghost {
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    font-size: 15px; font-weight: 500; font-family: var(--font-body);
+    padding: 12px 20px; border-radius: 999px;
+    border: 1px solid var(--border); transition: all .2s ease;
+  }
+  .mo-btn-ghost:hover { color: var(--text); background: var(--surface); }
 </style>
 </head>
 <body>
@@ -487,11 +572,15 @@
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12s-5-3.2-5-6.5A2.8 2.8 0 0 1 7 4a2.8 2.8 0 0 1 5 1.5C12 8.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       <span>Discover</span>
     </a>
-    <a class="nav-tab" href="#">
+    <a class="nav-tab" href="Concert Match.html">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 11V5l5-2.5L12 5v6" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="7" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
+      <span>Shows</span>
+    </a>
+    <a class="nav-tab" href="Chat.html">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 4h10M2 7h10M2 10h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       <span>Messages</span>
     </a>
-    <a class="nav-tab" href="Connect Spotify.html">
+    <a class="nav-tab" href="Profile.html">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M2 12c1-2 3-3 5-3s4 1 5 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       <span>You</span>
     </a>
@@ -504,14 +593,17 @@
 
     <div class="queue">
       <span><span class="step on">Today's queue</span></span>
-      <div class="queue-dots" aria-hidden="true">
+      <div class="queue-dots" id="queue-dots" aria-hidden="true">
         <span class="queue-dot on"></span>
-        <span class="queue-dot on"></span>
-        <span class="queue-dot" id="qd3"></span>
+        <span class="queue-dot"></span>
+        <span class="queue-dot"></span>
+        <span class="queue-dot"></span>
+        <span class="queue-dot"></span>
+        <span class="queue-dot"></span>
         <span class="queue-dot"></span>
         <span class="queue-dot"></span>
       </div>
-      <span class="mono">02 / 05</span>
+      <span class="mono" id="queue-counter">01 / 08</span>
     </div>
 
     <!-- MATCH CARD -->
@@ -701,6 +793,28 @@
   </div>
 </aside>
 
+<!-- Match overlay — triggered on first like -->
+<div id="match-overlay" role="dialog" aria-modal="true" aria-label="It's a match">
+  <div class="mo-inner">
+    <div class="mo-glow" aria-hidden="true"></div>
+    <div class="mo-avatars" aria-hidden="true">
+      <div class="mo-av mo-av-you"></div>
+      <div class="mo-av mo-av-them" id="match-av-them"></div>
+      <div class="mo-link"></div>
+    </div>
+    <div class="mo-eyebrow">Resonance confirmed</div>
+    <h2 class="mo-title">It's a match.</h2>
+    <p class="mo-sub" id="mo-sub">You and them both felt it. Start with a song.</p>
+    <div class="mo-actions">
+      <a href="Chat.html" class="mo-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12v8H8.5L5 14.5V12H2V4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Send a message
+      </a>
+      <button id="match-keep-looking" class="mo-btn-ghost" type="button">Keep exploring</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast" role="status" aria-live="polite">
   <span class="chk"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="m2 5 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -817,6 +931,191 @@
     }
   }
 
+  // ── API-driven card state ──────────────────────────────────────────────────
+
+  let allProfiles = [];
+  let currentIndex = 0;
+  let hasMatched = false;
+  const RING_CIRC = 81.68; // 2π × r=13
+
+  function setProfileFromData(p) {
+    const photoEl = document.getElementById('photo');
+    photoEl.className = 'match-photo';
+    photoEl.style.backgroundImage    = `url('${p.photo}')`;
+    photoEl.style.backgroundSize     = 'cover';
+    photoEl.style.backgroundPosition = 'center top';
+
+    document.getElementById('p-name').textContent  = p.name;
+    document.getElementById('p-age').textContent   = p.age;
+    document.getElementById('p-loc').textContent   = p.pronouns;
+
+    document.getElementById('np-track').textContent  = p.nowPlaying.track;
+    document.getElementById('np-artist').textContent = p.nowPlaying.artist;
+
+    const pct = p.compatibility;
+    document.getElementById('rb-val').textContent = pct + '%';
+    document.getElementById('rb-ring-fg')
+      .setAttribute('stroke-dashoffset', (RING_CIRC * (1 - pct / 100)).toFixed(1));
+    document.getElementById('card').dataset.resonance =
+      pct >= 88 ? 'high' : pct >= 80 ? 'mid' : 'low';
+
+    document.querySelector('#ss-energy-b span').style.width = p.signature.energy + '%';
+    document.querySelector('#ss-mood-b span').style.width   = p.signature.mood   + '%';
+    document.querySelector('#ss-tempo-b span').style.width  = p.signature.tempo  + '%';
+
+    document.getElementById('shared-chips').innerHTML = p.sharedArtists
+      .map(a => `<span class="chip shared">${a}</span>`).join('');
+    document.getElementById('shared-n').textContent =
+      `${p.sharedArtists.length} artist${p.sharedArtists.length !== 1 ? 's' : ''} in common`;
+
+    const theirArtists = p.topArtists.filter(a => !p.sharedArtists.includes(a)).slice(0, 4);
+    document.getElementById('their-chips').innerHTML = theirArtists
+      .map(a => `<span class="chip new">${a}</span>`).join('');
+
+    document.getElementById('blurb').textContent = p.prompts[0].answer;
+    document.getElementById('spl-title').textContent = `Your shared vibe with ${p.name}`;
+
+    if (p.playlist) {
+      const splArt = document.querySelector('.spl-art');
+      if (splArt) {
+        splArt.style.backgroundImage    = `url('${p.playlist.coverArt}')`;
+        splArt.style.backgroundSize     = 'cover';
+        splArt.style.backgroundPosition = 'center';
+      }
+      document.querySelector('.spl-sub').textContent = p.playlist.subtitle;
+      document.querySelector('.spl-tracks').innerHTML = p.playlist.tracks
+        .map((t, i) => `
+          <div class="spl-track">
+            <span class="idx">0${i + 1}</span>
+            <span class="t-name">${t.title} <em>· ${t.artist}</em></span>
+            <span class="t-dur">${t.duration}</span>
+          </div>`).join('');
+    }
+
+    document.querySelector('#send-btn .song-meta .nm').textContent =
+      `${p.nowPlaying.track} — ${p.nowPlaying.artist}`;
+
+    const thumb = document.querySelector('#send-btn .song-thumb');
+    if (thumb) {
+      thumb.style.backgroundImage    = p.nowPlaying.albumArt ? `url('${p.nowPlaying.albumArt}')` : '';
+      thumb.style.backgroundSize     = 'cover';
+      thumb.style.backgroundPosition = 'center';
+    }
+  }
+
+  function addPeekCards() {
+    document.querySelectorAll('.peek-card').forEach(el => el.remove());
+    const cardEl = document.getElementById('card');
+    const peek1 = document.createElement('div');
+    peek1.className = 'peek-card';
+    peek1.style.cssText = 'height:16px;border-radius:0 0 24px 24px;border:1px solid rgba(255,255,255,0.07);border-top:0;background:rgba(24,24,28,0.60);margin:-8px 12px 0;position:relative;z-index:-1;';
+    const peek2 = document.createElement('div');
+    peek2.className = 'peek-card';
+    peek2.style.cssText = 'height:14px;border-radius:0 0 24px 24px;border:1px solid rgba(255,255,255,0.05);border-top:0;background:rgba(20,20,22,0.50);margin:-6px 24px 0;position:relative;z-index:-2;';
+    cardEl.insertAdjacentElement('afterend', peek1);
+    peek1.insertAdjacentElement('afterend', peek2);
+  }
+
+  async function initFromAPI() {
+    const urlId = new URLSearchParams(window.location.search).get('id');
+    try {
+      const res = await fetch('/api/discover');
+      if (!res.ok) return; // not authed or error — leave placeholder data
+      allProfiles = await res.json();
+      if (!allProfiles.length) return;
+
+      if (urlId) {
+        // Detail mode: show one specific profile, both prompts in blurb
+        const profile = allProfiles.find(p => p.id === urlId) || allProfiles[0];
+        setProfileFromData(profile);
+        document.getElementById('blurb').innerHTML =
+          `<em style="font-style:normal;color:var(--text-dim);font-size:13px;font-family:var(--font-mono);letter-spacing:0.06em;">${profile.prompts[0].question}</em><br><br>${profile.prompts[0].answer}<br><br>` +
+          `<em style="font-style:normal;color:var(--text-dim);font-size:13px;font-family:var(--font-mono);letter-spacing:0.06em;">${profile.prompts[1].question}</em><br><br>${profile.prompts[1].answer}`;
+      } else {
+        // Stack mode: top card + two peeking ghost cards for depth
+        currentIndex = 0;
+        setProfileFromData(allProfiles[0]);
+        addPeekCards();
+        updateQueue(0, allProfiles.length);
+      }
+    } catch (err) {
+      console.error('[Resonate] Failed to load profiles:', err);
+    }
+  }
+
+  // ── User profile image (nav avatar + match overlay "you" side) ──────────
+
+  async function loadUserAvatar() {
+    try {
+      const res = await fetch('/api/me');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.profileImage) return;
+      window._resonateUserImage = data.profileImage;
+      const nav = document.querySelector('.nav-avatar');
+      if (nav) {
+        nav.style.backgroundImage    = `url('${data.profileImage}')`;
+        nav.style.backgroundSize     = 'cover';
+        nav.style.backgroundPosition = 'center';
+      }
+    } catch {}
+  }
+
+  // ── Queue indicator ───────────────────────────────────────────────────────
+
+  function updateQueue(index, total) {
+    document.querySelectorAll('#queue-dots .queue-dot').forEach((dot, i) => {
+      dot.classList.toggle('on', i <= index);
+    });
+    const n = String(index + 1).padStart(2, '0');
+    const t = String(total).padStart(2, '0');
+    document.getElementById('queue-counter').textContent = `${n} / ${t}`;
+  }
+
+  // ── Match overlay ─────────────────────────────────────────────────────────
+
+  function showMatchOverlay() {
+    const profile = allProfiles.length > 0 ? allProfiles[currentIndex] : null;
+    if (profile) {
+      document.getElementById('mo-sub').textContent =
+        `You and ${profile.name} both felt it. Start with a song.`;
+      const themAv = document.getElementById('match-av-them');
+      themAv.style.backgroundImage    = `url('${profile.photo}')`;
+      themAv.style.backgroundSize     = 'cover';
+      themAv.style.backgroundPosition = 'center top';
+    }
+    const youAv = document.querySelector('.mo-av-you');
+    if (youAv && window._resonateUserImage) {
+      youAv.style.backgroundImage    = `url('${window._resonateUserImage}')`;
+      youAv.style.backgroundSize     = 'cover';
+      youAv.style.backgroundPosition = 'center';
+    }
+    const overlay = document.getElementById('match-overlay');
+    overlay.style.display = 'flex';
+    void overlay.offsetWidth; // force reflow so transition fires
+    overlay.classList.add('visible');
+  }
+
+  // Capture phase — runs before the existing bubble-phase send-btn listeners,
+  // so stopImmediatePropagation() prevents the toast from firing on first click.
+  document.getElementById('send-btn').addEventListener('click', (e) => {
+    if (!hasMatched) {
+      e.stopImmediatePropagation();
+      hasMatched = true;
+      showMatchOverlay();
+    }
+  }, true);
+
+  document.getElementById('match-keep-looking').addEventListener('click', () => {
+    const overlay = document.getElementById('match-overlay');
+    overlay.classList.remove('visible');
+    setTimeout(() => { overlay.style.display = 'none'; }, 400);
+    if (allProfiles.length > 0) {
+      currentIndex = (currentIndex + 1) % allProfiles.length;
+      setProfileFromData(allProfiles[currentIndex]);
+    }
+  });
+
   /* Decision actions */
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toast-msg');
@@ -829,16 +1128,22 @@
   }
 
   document.getElementById('send-btn').addEventListener('click', () => {
-    const key = card.dataset.profile;
-    showToast(PROFILES[key].toast);
+    const name = allProfiles.length > 0
+      ? allProfiles[currentIndex].name
+      : (PROFILES[card.dataset.profile]?.name || 'them');
+    showToast(`Song sent. Waiting for ${name} to press play.`);
   });
   document.getElementById('pass-btn').addEventListener('click', () => {
-    // Cycle to next profile as a little taste of the flow
-    const order = ['maya', 'idris', 'priya'];
-    const next = order[(order.indexOf(card.dataset.profile) + 1) % order.length];
-    setProfile(next);
+    if (allProfiles.length > 0) {
+      currentIndex = (currentIndex + 1) % allProfiles.length;
+      setProfileFromData(allProfiles[currentIndex]);
+      updateQueue(currentIndex, allProfiles.length);
+    } else {
+      const order = ['maya', 'idris', 'priya'];
+      const next = order[(order.indexOf(card.dataset.profile) + 1) % order.length];
+      setProfile(next);
+    }
     showToast('Passed. Finding the next one.');
-    document.getElementById('qd3').classList.add('on');
   });
   document.getElementById('save-btn').addEventListener('click', () => {
     showToast('Saved to your queue.');
@@ -856,6 +1161,8 @@
 
   setProfile(TWEAK_DEFAULTS.profile || 'maya', { persist: false });
   setResonance(TWEAK_DEFAULTS.resonance || 'high', { persist: false });
+  loadUserAvatar();
+  initFromAPI();
 </script>
 </body>
 </html>

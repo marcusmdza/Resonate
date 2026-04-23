@@ -128,11 +128,11 @@
     border: 1px solid var(--border);
     position: relative;
   }
-  .av-maya  { background: radial-gradient(at 30% 30%, #ff8fb3, #8a2f4e 70%); }
-  .av-idris { background: radial-gradient(at 30% 30%, #a8d8ff, #1e3a5f 70%); }
-  .av-priya { background: radial-gradient(at 30% 30%, #ffd4a8, #7a3a1e 70%); }
-  .av-leo   { background: radial-gradient(at 30% 30%, #c4b5fd, #4c1d95 70%); }
-  .av-sam   { background: radial-gradient(at 30% 30%, #fde68a, #78350f 70%); }
+  .av-samantha { background: url('/images/profiles/profile-1.jpg') center top / cover no-repeat; }
+  .av-ava      { background: url('/images/profiles/profile-2.jpg') center top / cover no-repeat; }
+  .av-emily    { background: url('/images/profiles/profile-4.jpg') center top / cover no-repeat; }
+  .av-tina     { background: url('/images/profiles/profile-7.jpg') center top / cover no-repeat; }
+  .av-emmy     { background: url('/images/profiles/profile-8.jpg') center top / cover no-repeat; }
 
   .row-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .row-name {
@@ -515,9 +515,14 @@
   <aside class="pane list-pane" aria-label="Matches">
     <div class="list-head">
       <div class="brand"><span class="dot"></span> Resonate</div>
-      <button class="icon-btn" aria-label="Compose" style="width:32px; height:32px; border-radius:10px;">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11V8.5L9 2.5l2.5 2.5L5.5 11H3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-      </button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <a href="Match View.html" class="icon-btn" aria-label="Back to Discover" title="Back to Discover" style="width:32px;height:32px;border-radius:10px;text-decoration:none;display:flex;align-items:center;justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M7 12s-5-3.2-5-6.5A2.8 2.8 0 0 1 7 4a2.8 2.8 0 0 1 5 1.5C12 8.8 7 12 7 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </a>
+        <button class="icon-btn" aria-label="Compose" style="width:32px;height:32px;border-radius:10px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11V8.5L9 2.5l2.5 2.5L5.5 11H3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="tabs" role="tablist">
@@ -528,11 +533,11 @@
 
     <div class="list" role="list">
 
-      <div class="row active" data-match="maya">
-        <div class="row-av av-maya"></div>
+      <div class="row active" data-match="samantha">
+        <div class="row-av av-samantha"></div>
         <div class="row-meta">
-          <div class="row-name">Maya <span class="pct">94%</span></div>
-          <div class="row-preview"><span class="song-icon">♪</span>Delilah — Fred again..</div>
+          <div class="row-name">Samantha <span class="pct">94%</span></div>
+          <div class="row-preview"><span class="song-icon">♪</span>Best Part — Daniel Caesar</div>
         </div>
         <div class="row-right">
           <span class="row-time">2m</span>
@@ -540,10 +545,10 @@
         </div>
       </div>
 
-      <div class="row" data-match="idris">
-        <div class="row-av av-idris"></div>
+      <div class="row" data-match="ava">
+        <div class="row-av av-ava"></div>
         <div class="row-meta">
-          <div class="row-name">Idris <span class="pct">89%</span></div>
+          <div class="row-name">Ava <span class="pct">91%</span></div>
           <div class="row-preview"><span class="row-live">Live · listening</span></div>
         </div>
         <div class="row-right">
@@ -551,10 +556,10 @@
         </div>
       </div>
 
-      <div class="row" data-match="priya">
-        <div class="row-av av-priya"></div>
+      <div class="row" data-match="emily">
+        <div class="row-av av-emily"></div>
         <div class="row-meta">
-          <div class="row-name">Priya <span class="pct">81%</span></div>
+          <div class="row-name">Emily <span class="pct">87%</span></div>
           <div class="row-preview">ok this bridge is insane</div>
         </div>
         <div class="row-right">
@@ -562,21 +567,21 @@
         </div>
       </div>
 
-      <div class="row" data-match="leo">
-        <div class="row-av av-leo"></div>
+      <div class="row" data-match="tina">
+        <div class="row-av av-tina"></div>
         <div class="row-meta">
-          <div class="row-name">Leo <span class="pct">77%</span></div>
-          <div class="row-preview"><span class="song-icon">♪</span>Marea — Fred again..</div>
+          <div class="row-name">Tina <span class="pct">79%</span></div>
+          <div class="row-preview"><span class="song-icon">♪</span>FANCY — TWICE</div>
         </div>
         <div class="row-right">
           <span class="row-time">3h</span>
         </div>
       </div>
 
-      <div class="row" data-match="sam">
-        <div class="row-av av-sam"></div>
+      <div class="row" data-match="emmy">
+        <div class="row-av av-emmy"></div>
         <div class="row-meta">
-          <div class="row-name">Sam <span class="pct">72%</span></div>
+          <div class="row-name">Emmy <span class="pct">76%</span></div>
           <div class="row-preview">…show in october. im in.</div>
         </div>
         <div class="row-right">
@@ -590,12 +595,12 @@
   <!-- CENTER: conversation -->
   <section class="pane chat-pane" aria-label="Conversation">
     <div class="chat-head">
-      <div class="chat-av av-maya"></div>
+      <div class="chat-av av-samantha"></div>
       <div class="chat-who">
-        <div class="chat-name">Maya, 27</div>
+        <div class="chat-name">Samantha, 21</div>
         <div class="chat-status">
           <span class="np-dot"></span>
-          <span>NOW · Rings a Bell — Mk.gee</span>
+          <span>NOW · WANTCHU — keshi</span>
         </div>
       </div>
       <div class="chat-actions">
@@ -617,21 +622,29 @@
         <div style="display:flex; flex-direction: column; align-items: flex-end;">
           <div class="song-msg">
             <div class="sm-top">
-              <div class="sm-art sm-art-a"></div>
+              <div class="sm-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/27/40/34/274034b3-42d9-ba59-b22c-dc4f57672ee0/886446799513.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
               <div class="sm-info">
-                <div class="sm-title">Delilah (pull me out of this)</div>
-                <div class="sm-artist">Fred again..</div>
+                <div class="sm-title">Best Part</div>
+                <div class="sm-artist">Daniel Caesar</div>
               </div>
               <button class="sm-play" aria-label="Play"><svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M3 2v7l6-3.5L3 2Z"/></svg></button>
             </div>
             <div class="sm-wave" id="wave-mine" aria-hidden="true"></div>
             <div class="sm-foot">
-              <span>FIRST SONG · 3:49</span>
-              <span class="note">"for the 2am part."</span>
+              <span>FIRST SONG · 3:31</span>
+              <span class="note">"thought of you instantly."</span>
             </div>
           </div>
-          <div class="reaction"><span class="heart">♥</span><span>Maya played it 3 times</span></div>
+          <div class="reaction"><span class="heart">♥</span><span>Samantha played it 3 times</span></div>
           <div class="msg-time">10:24 PM</div>
+        </div>
+      </div>
+
+      <!-- Samantha's text reply -->
+      <div class="msg theirs">
+        <div>
+          <div class="bubble">OMGGG i love that song 😭</div>
+          <div class="msg-time">10:28 PM</div>
         </div>
       </div>
 
@@ -640,10 +653,10 @@
         <div>
           <div class="song-msg">
             <div class="sm-top">
-              <div class="sm-art sm-art-b"></div>
+              <div class="sm-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0f/c9/1f/0fc91f9d-dcbf-687c-3841-13902a95cbf6/25UM1IM00469.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
               <div class="sm-info">
-                <div class="sm-title">Rings a Bell</div>
-                <div class="sm-artist">Mk.gee</div>
+                <div class="sm-title">WANTCHU</div>
+                <div class="sm-artist">keshi</div>
               </div>
               <button class="sm-play" aria-label="Play"><svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M3 2v7l6-3.5L3 2Z"/></svg></button>
             </div>
@@ -660,14 +673,14 @@
       <!-- Text exchange -->
       <div class="msg theirs">
         <div>
-          <div class="bubble">wait — the 2am part. which 2am part.</div>
+          <div class="bubble">wait — the outro. did you make it to the outro.</div>
           <div class="msg-time">10:42 PM</div>
         </div>
       </div>
 
       <div class="msg mine">
         <div style="display:flex; flex-direction: column; align-items: flex-end;">
-          <div class="bubble">2:47. right before the vocal cuts out. you'll know.</div>
+          <div class="bubble">yeah that's the whole thing. let it run.</div>
           <div class="msg-time">10:43 PM</div>
         </div>
       </div>
@@ -676,7 +689,7 @@
 
       <div class="msg theirs">
         <div>
-          <div class="bubble">ok i played it walking over the manhattan bridge at midnight and you were right.</div>
+          <div class="bubble">ok i had wantchu on loop walking home last night. you were right.</div>
           <div class="msg-time">12:16 AM</div>
         </div>
       </div>
@@ -685,16 +698,16 @@
         <div>
           <div class="song-msg">
             <div class="sm-top">
-              <div class="sm-art sm-art-c"></div>
+              <div class="sm-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/d9/5a/a9/d95aa943-0e9b-ae75-3157-ab372f5b831a/8809704422604_Cover.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
               <div class="sm-info">
-                <div class="sm-title">cellophane</div>
-                <div class="sm-artist">FKA twigs</div>
+                <div class="sm-title">ONLY</div>
+                <div class="sm-artist">LEEHI</div>
               </div>
               <button class="sm-play" aria-label="Play"><svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M3 2v7l6-3.5L3 2Z"/></svg></button>
             </div>
             <div class="sm-wave" id="wave-theirs-2" aria-hidden="true"></div>
             <div class="sm-foot">
-              <span>3:21</span>
+              <span>3:28</span>
               <span class="note">"the bridge reminded me of this."</span>
             </div>
           </div>
@@ -702,27 +715,27 @@
         </div>
       </div>
 
-      <div class="typing" id="typing" aria-label="Maya is typing"><span></span><span></span><span></span></div>
+      <div class="typing" id="typing" aria-label="Samantha is typing"><span></span><span></span><span></span></div>
 
     </div>
 
     <div class="composer">
       <div class="composer-suggest" aria-label="Suggested songs">
         <button class="suggest-btn" type="button">
-          <span class="mini-art a"></span>
-          <span>Two Star <em>· Mk.gee</em></span>
+          <span class="mini-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a6/a3/20/a6a32054-f43f-12b3-4019-1f201b6c56b2/24UMGIM70300.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></span>
+          <span>Soft Spot <em>· keshi</em></span>
         </button>
         <button class="suggest-btn" type="button">
-          <span class="mini-art b"></span>
-          <span>Marea <em>· Fred again..</em></span>
+          <span class="mini-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a8/8e/f9/a88ef97a-74c3-bedf-0574-ea0b83b40a38/20UMGIM94965.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></span>
+          <span>pov <em>· Ariana Grande</em></span>
         </button>
         <button class="suggest-btn" type="button">
-          <span class="mini-art c"></span>
-          <span>Sun <em>· Caroline Polachek</em></span>
+          <span class="mini-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/e2/61/f8/e261f8c1-73db-9a7a-c89e-1068f19970e0/16UMGIM67863.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></span>
+          <span>Die For You <em>· The Weeknd</em></span>
         </button>
         <button class="suggest-btn" type="button">
-          <span class="mini-art d"></span>
-          <span>Hayloft II <em>· Mother Mother</em></span>
+          <span class="mini-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/50/c2/cc/50c2cc95-3658-9417-0d4b-831abde44ba1/24UM1IM28978.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></span>
+          <span>luther <em>· Kendrick Lamar</em></span>
         </button>
       </div>
       <div class="composer-row">
@@ -735,7 +748,7 @@
           </button>
         </div>
         <div class="input-wrap">
-          <input id="text-input" type="text" placeholder="Reply to Maya — or send a song instead" />
+          <input id="text-input" type="text" placeholder="Reply to Samantha — or send a song instead" />
         </div>
         <button class="send-btn" aria-label="Send" id="send-btn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -747,7 +760,7 @@
   <!-- RIGHT: shared vibe rail -->
   <aside class="pane rail" aria-label="Shared vibe">
     <div>
-      <h3>Resonance with Maya</h3>
+      <h3>Resonance with Samantha</h3>
       <div class="rail-card res-big">
         <div class="res-ring">
           <svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="50" fill="none" stroke-width="6"/><circle class="fg" cx="60" cy="60" r="50" fill="none" stroke-width="6" stroke-dasharray="314.16" stroke-dashoffset="18.85" stroke-linecap="round"/></svg>
@@ -762,28 +775,28 @@
       <div class="rail-card">
         <div class="sent-list">
           <div class="sent-item">
-            <div class="sent-art sm-art-a"></div>
+            <div class="sent-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/27/40/34/274034b3-42d9-ba59-b22c-dc4f57672ee0/886446799513.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
             <div class="sent-info">
-              <div class="sent-title">Delilah</div>
-              <div class="sent-artist">Fred again..</div>
+              <div class="sent-title">Best Part</div>
+              <div class="sent-artist">Daniel Caesar</div>
             </div>
             <span class="sent-by me">You</span>
           </div>
           <div class="sent-item">
-            <div class="sent-art sm-art-b"></div>
+            <div class="sent-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0f/c9/1f/0fc91f9d-dcbf-687c-3841-13902a95cbf6/25UM1IM00469.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
             <div class="sent-info">
-              <div class="sent-title">Rings a Bell</div>
-              <div class="sent-artist">Mk.gee</div>
+              <div class="sent-title">WANTCHU</div>
+              <div class="sent-artist">keshi</div>
             </div>
-            <span class="sent-by them">Maya</span>
+            <span class="sent-by them">Samantha</span>
           </div>
           <div class="sent-item">
-            <div class="sent-art sm-art-c"></div>
+            <div class="sent-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/d9/5a/a9/d95aa943-0e9b-ae75-3157-ab372f5b831a/8809704422604_Cover.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
             <div class="sent-info">
-              <div class="sent-title">cellophane</div>
-              <div class="sent-artist">FKA twigs</div>
+              <div class="sent-title">ONLY</div>
+              <div class="sent-artist">LEEHI</div>
             </div>
-            <span class="sent-by them">Maya</span>
+            <span class="sent-by them">Samantha</span>
           </div>
         </div>
       </div>
@@ -793,22 +806,22 @@
       <h3>Send back</h3>
       <div style="display:flex; flex-direction:column; gap:10px;">
         <div class="suggestion">
-          <div class="sg-art sm-art-a"></div>
+          <div class="sg-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a6/a3/20/a6a32054-f43f-12b3-4019-1f201b6c56b2/24UMGIM70300.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
           <div class="sg-info">
-            <div class="sg-title">Two Star</div>
-            <div class="sg-sub">MK.GEE · IN HER TERRITORY</div>
+            <div class="sg-title">Soft Spot</div>
+            <div class="sg-sub">KESHI · YOU BOTH</div>
           </div>
-          <button class="sg-send" aria-label="Send Two Star">
+          <button class="sg-send" aria-label="Send Soft Spot">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8m0 0L7 3m3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
         <div class="suggestion">
-          <div class="sg-art sm-art-d"></div>
+          <div class="sg-art" style="background:url('https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a8/8e/f9/a88ef97a-74c3-bedf-0574-ea0b83b40a38/20UMGIM94965.rgb.jpg/400x400bb.jpg') center/cover no-repeat;"></div>
           <div class="sg-info">
-            <div class="sg-title">Marea (we've lost dancing)</div>
-            <div class="sg-sub">FRED AGAIN.. · YOU BOTH</div>
+            <div class="sg-title">pov</div>
+            <div class="sg-sub">ARIANA GRANDE · IN HER TERRITORY</div>
           </div>
-          <button class="sg-send" aria-label="Send Marea">
+          <button class="sg-send" aria-label="Send pov">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8m0 0L7 3m3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>

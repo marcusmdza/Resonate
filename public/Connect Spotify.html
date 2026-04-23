@@ -710,6 +710,8 @@
     if (state === 'scanning') startScan();
     else stopScan();
 
+    if (state === 'signature') loadSignatureData();
+
     if (persist) {
       try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { state } }, '*'); } catch(e) {}
     }
@@ -812,14 +814,120 @@
     clearInterval(feedTimer);
   }
 
+  // ── Spotify data population ────────────────────────────────────────────────
+
+  function personalityRead({ energy, danceability, valence, acousticness }) {
+    if (energy > 0.80 && danceability > 0.75)       return 'Maximum velocity, minimum chill.';
+    if (energy > 0.70 && acousticness < 0.25)        return 'Late-night dancefloor energy.';
+    if (danceability > 0.70 && acousticness < 0.20)  return 'The body decides before the brain does.';
+    if (danceability > 0.70 && valence > 0.60)       return 'Built for main-character moments.';
+    if (valence < 0.40 && acousticness > 0.30)       return 'You live in the blue hour.';
+    if (valence < 0.45 && energy > 0.60)             return 'Dark energy in a bright room.';
+    if (valence > 0.65 && energy > 0.60)             return 'Perpetual golden hour.';
+    if (energy < 0.50 && acousticness > 0.40)        return 'Soft focus, headphones at midnight.';
+    if (acousticness > 0.35 && energy < 0.60)        return 'Still waters, deep frequency.';
+    return "You've got range.";
+  }
+
+  function tempoNorm(bpm) {
+    return Math.max(0, Math.min(1, (bpm - 60) / 120)); // 60–180 BPM → 0–1
+  }
+
+  function populateSignature(data) {
+    const { displayName, profileImage, topArtists, topGenres, sonicSignature: sig } = data;
+
+    // Header: profile image + display name + personality read
+    const avatarEl = document.querySelector('.sig-avatar');
+    if (profileImage) {
+      avatarEl.style.backgroundImage = `url('${profileImage}')`;
+      avatarEl.style.backgroundSize  = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+    }
+    document.querySelector('.sig-name').textContent = displayName;
+    document.querySelector('.sig-meta').textContent = personalityRead(sig);
+
+    // Genre chips — first 2 primary, rest plain; fallback if empty
+    const genres = topGenres.length ? topGenres : ['Eclectic', 'Undefined'];
+    document.querySelector('.sig-tags').innerHTML = genres
+      .map((g, i) => `<span class="sig-tag${i < 2 ? ' primary' : ''}">${g}</span>`)
+      .join('');
+
+    // Bars: Energy, Dance, Mood (valence), Acoustic, Tempo
+    const tn = tempoNorm(sig.tempo);
+    const barDefs = [
+      [sig.energy,        `${sig.energy.toFixed(2)}`],
+      [sig.danceability,  `${sig.danceability.toFixed(2)}`],
+      [sig.valence,       `${sig.valence.toFixed(2)}`],
+      [sig.acousticness,  `${sig.acousticness.toFixed(2)}`],
+      [tn,                `${Math.round(sig.tempo)} BPM`],
+    ];
+    document.querySelectorAll('.sig-bar-row').forEach((row, i) => {
+      if (!barDefs[i]) return;
+      const [pct, label] = barDefs[i];
+      row.querySelector('.fill').style.width = `${(pct * 100).toFixed(1)}%`;
+      row.querySelector('.val').textContent  = label;
+    });
+
+    // Radar polygon — axis unit vectors × value (stays in sync even when hidden)
+    const e = sig.energy, d = sig.danceability, v = sig.valence,
+          a = sig.acousticness, t = tn;
+    const coords = [
+      [0,           -e * 100],
+      [d *  95.1,   d * -30.9],
+      [v *  58.8,   v *  80.9],
+      [-a * 58.8,   a *  80.9],
+      [-t * 95.1,   t * -30.9],
+    ];
+    const poly = document.querySelector('.sig-radar .poly');
+    if (poly) poly.setAttribute('points', coords.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' '));
+    document.querySelectorAll('.sig-radar .poly-dot').forEach((dot, i) => {
+      if (!coords[i]) return;
+      dot.setAttribute('cx', coords[i][0].toFixed(2));
+      dot.setAttribute('cy', coords[i][1].toFixed(2));
+    });
+
+    // Top artists — up to 5 cards; fallback gradient if no image
+    const FALLBACKS = [
+      'repeating-linear-gradient(135deg,#1a1a22 0 8px,#141419 8px 18px)',
+      'repeating-linear-gradient(115deg,#3d1d2a 0 10px,#21101a 10px 24px)',
+      'repeating-linear-gradient(160deg,#16332b 0 12px,#0f1f1c 12px 24px)',
+      'repeating-linear-gradient(95deg,#1f1b3a 0 12px,#120f22 12px 24px)',
+      'repeating-linear-gradient(180deg,#2a2a30 0 8px,#1a1a20 8px 20px)',
+    ];
+    const artists = topArtists.slice(0, 5);
+    document.querySelector('.sig-top').innerHTML = artists.map((artist, i) => {
+      const bg = artist.image
+        ? `background-image:url('${artist.image}');background-size:cover;background-position:center;`
+        : `background:${FALLBACKS[i % FALLBACKS.length]};`;
+      return `
+        <div class="sig-top-card">
+          <div class="sig-top-art" style="${bg}"></div>
+          <div class="sig-top-info">
+            <div class="sig-top-label">${i === 0 ? 'Top artist' : `#${i + 1} artist`}</div>
+            <div class="sig-top-name">${artist.name}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  async function loadSignatureData() {
+    try {
+      const res = await fetch('/api/me');
+      if (res.status === 401) { setState('idle'); return; }
+      if (res.status === 500 || res.status === 202) { setState('error'); return; }
+      const data = await res.json();
+      populateSignature(data);
+    } catch (err) {
+      console.error('[Resonate] Failed to load signature data:', err);
+      setState('error');
+    }
+  }
+
   /* Button wiring */
   document.getElementById('btn-start').addEventListener('click', () => { window.location.href = '/auth/spotify'; });
   document.getElementById('btn-rescan').addEventListener('click', () => setState('scanning'));
   document.getElementById('btn-continue').addEventListener('click', () => {
-    // Placeholder — would route to profile step
-    const btn = document.getElementById('btn-continue');
-    btn.style.transform = 'translateY(1px)';
-    setTimeout(() => btn.style.transform = '', 120);
+    window.location.href = 'Match View.html';
   });
 
   /* Tweaks wiring */
@@ -840,7 +948,7 @@
 
   /* Init from defaults */
   const urlState = new URLSearchParams(window.location.search).get('state');
-  setState(urlState || TWEAK_DEFAULTS.state || 'idle', { persist: false });
+  setState(urlState || 'idle', { persist: false });
   setViz(TWEAK_DEFAULTS.viz || 'radar', { persist: false });
 </script>
 </body>
