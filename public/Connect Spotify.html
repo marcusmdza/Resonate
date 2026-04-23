@@ -813,7 +813,7 @@
   }
 
   /* Button wiring */
-  document.getElementById('btn-start').addEventListener('click', () => setState('scanning'));
+  document.getElementById('btn-start').addEventListener('click', () => { window.location.href = '/auth/spotify'; });
   document.getElementById('btn-rescan').addEventListener('click', () => setState('scanning'));
   document.getElementById('btn-continue').addEventListener('click', () => {
     // Placeholder — would route to profile step
@@ -839,7 +839,8 @@
   try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e) {}
 
   /* Init from defaults */
-  setState(TWEAK_DEFAULTS.state || 'idle', { persist: false });
+  const urlState = new URLSearchParams(window.location.search).get('state');
+  setState(urlState || TWEAK_DEFAULTS.state || 'idle', { persist: false });
   setViz(TWEAK_DEFAULTS.viz || 'radar', { persist: false });
 </script>
 </body>
